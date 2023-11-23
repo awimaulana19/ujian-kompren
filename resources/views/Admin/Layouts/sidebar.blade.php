@@ -46,13 +46,13 @@
              <span class="menu-header-text">Pengguna</span>
          </li>
          <li id="dosen" class="menu-item">
-             <a href="/dosen" class="menu-link">
+             <a href="/admin/dosen" class="menu-link">
                  <i class="menu-icon tf-icons bx bxs-user-badge"></i>
                  <div data-i18n="Analytics">Data Dosen</div>
              </a>
          </li>
          <li id="mahasiswa" class="menu-item">
-             <a href="/mahasiswa" class="menu-link">
+             <a href="/admin/mahasiswa" class="menu-link">
                  <i class="menu-icon tf-icons bx bxs-user"></i>
                  <div data-i18n="Analytics">Data Mahasiswa</div>
              </a>
@@ -71,10 +71,10 @@
      if (document.title === "Soal Sulit") {
          document.getElementById("soalSulit").classList.add("active");
      }
-     if (document.title === "Dosen") {
+     if (document.title === "Data Dosen") {
          document.getElementById("dosen").classList.add("active");
      }
-     if (document.title === "Mahasiswa") {
+     if (document.title === "Data Mahasiswa") {
          document.getElementById("mahasiswa").classList.add("active");
      }
  </script>

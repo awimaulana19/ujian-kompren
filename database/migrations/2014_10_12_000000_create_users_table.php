@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('roles');
+            $table->string('sk_kompren')->nullable();
+            $table->string('matkul_pengujian')->nullable();
             $table->boolean('is_verification')->default(false);
             $table->rememberToken();
             $table->timestamps();

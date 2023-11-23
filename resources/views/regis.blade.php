@@ -7,7 +7,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Halaman Login</title>
+    <title>Halaman Register Akun</title>
 
     <meta name="description" content="" />
 
@@ -58,15 +58,22 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- Logo -->
-                        <div class="app-brand justify-content-center">
-                            <h3>Halaman Login</h3>
+                        <div class="app-brand justify-content-center text-center">
+                            <h3>Pendaftaran Akun</h3>
                         </div>
                         @if (session('pesan-danger'))
                             <p class="alert alert-danger">{{ session('pesan-danger') }}</p>
                         @endif
                         <!-- /Logo -->
-                        <form action="{{ url('/login') }}" method="POST">
+                        <form action="{{ url('/regis') }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" class="form-control" id="roles" name="roles"
+                                value="mahasiswa" />
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Lengkap</label>
+                                <input type="text" class="form-control" id="nama" name="nama"
+                                    placeholder="Enter your name" autofocus />
+                            </div>
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username/Nim</label>
                                 <input type="text" class="form-control" id="username" name="username"
@@ -75,9 +82,6 @@
                             <div class="mb-3 form-password-toggle">
                                 <div class="d-flex justify-content-between">
                                     <label class="form-label" for="password">Password</label>
-                                    {{-- <a href="auth-forgot-password-basic.html">
-                      <small>Forgot Password?</small>
-                    </a> --}}
                                 </div>
                                 <div class="input-group input-group-merge">
                                     <input type="password" id="password" class="form-control" name="password"
@@ -85,10 +89,19 @@
                                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                                 </div>
                             </div>
+                            <div class="mb-3 form-password-toggle">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label" for="sk_kompren">SK Kompren</label>
+                                </div>
+                                <div class="input-group input-group-merge">
+                                    <input type="file" id="sk_kompren" class="form-control" name="sk_kompren"
+                                        placeholder="Masukkan Password" aria-describedby="sk_kompren" accept=".pdf" />
+                                </div>
+                            </div>
                             <div class="mt-5">
-                                <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+                                <button class="btn btn-primary d-grid w-100" type="submit">Sign Up</button>
                                 <div class="d-flex justify-content-end">
-                                    <a href="{{ url('/regis') }}" class="text-decoration-underline mt-3">Daftar
+                                    <a href="{{ url('/login') }}" class="text-decoration-underline mt-3">Login
                                         Akun</a>
                                 </div>
                             </div>
