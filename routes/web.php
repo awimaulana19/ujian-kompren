@@ -37,6 +37,9 @@ Route::group(['middleware' => ['auth', 'OnlyAdmin']], function () {
 
     // dosen
     Route::get('/admin/dosen', [DosenController::class, 'index']);
+    Route::post('/admin/dosen', [DosenController::class, 'store']);
+    Route::post('/admin/dosen/update/{id}', [DosenController::class, 'update']);
+    Route::get('/admin/dosen/delete/{id}', [DosenController::class, 'destroy']);
 
     Route::get('/soal-mudah', [SoalController::class, 'index_mudah']);
     Route::post('/soal-mudah', [SoalController::class, 'store_mudah']);
