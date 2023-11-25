@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'roles',
         'sk_kompren',
+        'penguji',
         'matkul_pengujian',
         'is_verification',
     ];

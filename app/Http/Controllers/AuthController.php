@@ -41,16 +41,18 @@ class AuthController extends Controller
 
             $hashedPassword = bcrypt($request->password);
 
+            $penguji = json_encode([
+                'penguji_1' => ['user_id' => 0, 'matkul_id' => 0],
+                'penguji_2' => ['user_id' => 0, 'matkul_id' => 0],
+                'penguji_3' => ['user_id' => 0, 'matkul_id' => 0],
+            ]);
+
             $regis = new User([
                 'nama' => $request->nama,
                 'username' => $request->username,
                 'password' => $hashedPassword,
                 'roles' => $request->roles,
-                'penguji' => json_encode([
-                    'penguji_1' => ['user_id' => 0, 'matkul_id' => 0],
-                    'penguji_2' => ['user_id' => 0, 'matkul_id' => 0],
-                    'penguji_3' => ['user_id' => 0, 'matkul_id' => 0],
-                ]),
+                'penguji' => $penguji,
                 'sk_kompren' => $nama_file,
             ]);
         }
