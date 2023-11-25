@@ -14,4 +14,9 @@ class Matkul extends Model
     public function user(){
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function soal()
+    {
+        return $this->hasMany(Soal::class);
+    }
 }

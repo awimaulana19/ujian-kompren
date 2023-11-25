@@ -9,14 +9,14 @@ class Soal extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['soal'];
+    protected $fillable = ['soal', 'matkul_id'];
 
     public function jawaban()
     {
         return $this->hasMany(Jawaban::class);
     }
 
-    public function hasil(){
-        return $this->hasMany(Hasil::class);
+    public function matkul(){
+        return $this->belongsTo(Matkul::class, 'matkul_id');
     }
 }

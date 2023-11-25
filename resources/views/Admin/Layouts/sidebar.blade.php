@@ -21,27 +21,6 @@
                      <div data-i18n="Analytics">Dashboard</div>
                  </a>
              </li>
-             {{-- <li class="menu-header small text-uppercase">
-             <span class="menu-header-text">Data Soal</span>
-         </li>
-         <li id="soalMudah" class="menu-item">
-             <a href="/soal-mudah" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-book"></i>
-                 <div data-i18n="Analytics">Soal Mudah</div>
-             </a>
-         </li>
-         <li id="soalMenengah" class="menu-item">
-             <a href="/soal-menengah" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-book"></i>
-                 <div data-i18n="Analytics">Soal Menengah</div>
-             </a>
-         </li>
-         <li id="soalSulit" class="menu-item">
-             <a href="/soal-sulit" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-book"></i>
-                 <div data-i18n="Analytics">Soal Sulit</div>
-             </a>
-         </li> --}}
              <li class="menu-header small text-uppercase">
                  <span class="menu-header-text">Pengguna</span>
              </li>
@@ -66,6 +45,51 @@
                      <div data-i18n="Analytics">Mata Kuliah</div>
                  </a>
              </li>
+         </ul>
+     @endif
+     @if (auth()->user()->roles == 'dosen')
+         <ul class="menu-inner py-1">
+             <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Dashboard</span>
+             </li>
+             <li class="menu-item {{ request()->is('dashboard-dosen*') ? 'active' : '' }}">
+                 <a href="/dashboard-dosen" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-home-circle"></i>
+                     <div data-i18n="Analytics">Dashboard</div>
+                 </a>
+             </li>
+             <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Pengujian</span>
+             </li>
+             @foreach (auth()->user()->matkul as $item)
+                 <li class="menu-item {{ isset($matkul) && $matkul->id === $item->id ? 'active' : '' }}">
+                     <a href="/dosen/matkul/{{ $item->id }}" class="menu-link">
+                         <i class="menu-icon tf-icons bx bxs-book"></i>
+                         <div data-i18n="Analytics">{{ $item->nama }}</div>
+                     </a>
+                 </li>
+             @endforeach
+             {{-- <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Data Soal</span>
+             </li>
+             <li id="soalMudah" class="menu-item">
+                 <a href="/soal-mudah" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-book"></i>
+                     <div data-i18n="Analytics">Soal Mudah</div>
+                 </a>
+             </li>
+             <li id="soalMenengah" class="menu-item">
+                 <a href="/soal-menengah" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-book"></i>
+                     <div data-i18n="Analytics">Soal Menengah</div>
+                 </a>
+             </li>
+             <li id="soalSulit" class="menu-item">
+                 <a href="/soal-sulit" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-book"></i>
+                     <div data-i18n="Analytics">Soal Sulit</div>
+                 </a>
+             </li> --}}
          </ul>
      @endif
  </aside>

@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\DosenController;
-use App\Http\Controllers\HasilController;
 use App\Http\Controllers\MatkulController;
 use App\Http\Controllers\JawabanController;
 use App\Http\Controllers\MahasiswaController;
@@ -47,17 +46,24 @@ Route::group(['middleware' => ['auth', 'OnlyAdmin']], function () {
     Route::post('/admin/matkul', [MatkulController::class, 'store']);
     Route::post('/admin/matkul/update/{id}', [MatkulController::class, 'update']);
     Route::get('/admin/matkul/delete/{id}', [MatkulController::class, 'destroy']);
+});
 
+Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
+    Route::get('/dashboard-dosen', [AuthController::class, 'dashboard_dosen']);
+
+    Route::get('/dosen/matkul/{id}', [SoalController::class, 'soal_matkul']);
+    Route::post('/dosen/soal', [SoalController::class, 'store']);
+    Route::post('/dosen/soal/edit/{id}', [SoalController::class, 'update']);
+    Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy']);
+    Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
+    Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
+    
     Route::get('/soal-mudah', [SoalController::class, 'index_mudah']);
     Route::post('/soal-mudah', [SoalController::class, 'store_mudah']);
     Route::get('/soal-menengah', [SoalController::class, 'index_menengah']);
     Route::post('/soal-menengah', [SoalController::class, 'store_menengah']);
     Route::get('/soal-sulit', [SoalController::class, 'index_sulit']);
     Route::post('/soal-sulit', [SoalController::class, 'store_sulit']);
-    Route::post('/soal/edit/{id}', [SoalController::class, 'update']);
-    Route::get('/soal/hapus/{id}', [SoalController::class, 'destroy']);
-    Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
-    Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
     Route::post('/countdown-mudah', [SoalController::class, 'countdown_mudah']);
     Route::post('/countdown-menengah', [SoalController::class, 'countdown_menengah']);
     Route::post('/countdown-sulit', [SoalController::class, 'countdown_sulit']);

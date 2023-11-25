@@ -63,6 +63,14 @@ class AuthController extends Controller
         return view('Admin.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
     }
 
+    public function dashboard_dosen()
+    {
+        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
+        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
+        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
+        return view('Dosen.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
+    }
+    
     public function dashboard_mahasiswa()
     {
     }
@@ -76,8 +84,8 @@ class AuthController extends Controller
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             if (Auth::user()->roles == 'admin') {
                 return redirect('/dashboard-admin');
-            } elseif (Auth::user()->roles == 'pengawas') {
-                return redirect('/dashboard-pengawas');
+            } elseif (Auth::user()->roles == 'dosen') {
+                return redirect('/dashboard-dosen');
             } else {
                 if (auth()->user()->roles == 'mahasiswa' && auth()->user()->is_verification == true) {
                     return redirect('/dashboard-mahasiswa');

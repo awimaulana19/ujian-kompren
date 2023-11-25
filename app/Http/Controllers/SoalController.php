@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Soal;
 use App\Models\Jawaban;
 use App\Models\Countdown;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -129,58 +130,6 @@ class SoalController extends Controller
         return redirect('/soal-sulit')->with('success', 'Soal Telah Dibuat.');
     }
 
-    public function update(Request $request, $id)
-    {
-        $soal = Soal::where('id', $id)->first();
-
-        $validatedData = $request->validate([
-            'soal' => 'required|string|max:255',
-            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
-        ]);
-
-        $soal->soal = $validatedData['soal'];
-        if ($request->file('gambar_soal')) {
-            if ($request->gambarSoalLama) {
-                Storage::delete($request->gambarSoalLama);
-            }
-            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
-        }
-        $soal->update();
-
-        if ($soal->tingkat == 'mudah') {
-            Alert::success('Success', 'Soal kategori mudah diupdate');
-            return redirect('/soal-mudah')->with('success', 'Soal di Edit.');
-        }
-        if ($soal->tingkat == 'menengah') {
-            Alert::success('Success', 'Soal kategori menengah diupdate');
-            return redirect('/soal-menengah')->with('success', 'Soal di Edit.');
-        }
-        if ($soal->tingkat == 'sulit') {
-            Alert::success('Success', 'Soal kategori sulit diupdate');
-            return redirect('/soal-sulit')->with('success', 'Soal di Edit.');
-        }
-    }
-
-    public function destroy($id)
-    {
-        $soal = Soal::where('id', $id)->first();
-        $redirect = $soal->tingkat;
-        $soal->delete();
-
-        if ($redirect == 'mudah') {
-            Alert::success('Success', 'Soal kategori mudah dihapus');
-            return redirect('/soal-mudah')->with('success', 'Soal di Hapus.');
-        }
-        if ($redirect == 'menengah') {
-            Alert::success('Success', 'Soal kategori menengah dihapus');
-            return redirect('/soal-menengah')->with('success', 'Soal di Hapus.');
-        }
-        if ($redirect == 'sulit') {
-            Alert::success('Success', 'Soal kategori sulit dihapus');
-            return redirect('/soal-sulit')->with('success', 'Soal di Hapus.');
-        }
-    }
-
     public function countdown_mudah(Request $request)
     {
         $validatedData = $request->validate([
@@ -274,5 +223,82 @@ class SoalController extends Controller
             Alert::success('Success', 'Waktu Pengerjaan Soal Selesai');
             return redirect('/soal-sulit')->with('success', 'Countdown di Edit.');
         }
+    }
+
+    public function soal_matkul($id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+
+        return view('Dosen.Matkul.index', compact('matkul'));
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'matkul_id' => 'required',
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        $soal = new Soal();
+        $soal->matkul_id = $validatedData['matkul_id'];
+        $soal->soal = $validatedData['soal'];
+        $soal->tingkat = $validatedData['tingkat'];
+        if ($request->file('gambar_soal')) {
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->save();
+
+        $jawabanA = new Jawaban();
+        $jawabanA->soal_id = $soal->id;
+        $jawabanA->save();
+        $jawabanB = new Jawaban();
+        $jawabanB->soal_id = $soal->id;
+        $jawabanB->save();
+        $jawabanC = new Jawaban();
+        $jawabanC->soal_id = $soal->id;
+        $jawabanC->save();
+        $jawabanD = new Jawaban();
+        $jawabanD->soal_id = $soal->id;
+        $jawabanD->save();
+        $jawabanE = new Jawaban();
+        $jawabanE->soal_id = $soal->id;
+        $jawabanE->save();
+        Alert::success('Success', 'Soal ditambahkan');
+        return redirect()->back()->with('success', 'Soal Telah Dibuat.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        $validatedData = $request->validate([
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        $soal->soal = $validatedData['soal'];
+        $soal->tingkat = $validatedData['tingkat'];
+        if ($request->file('gambar_soal')) {
+            if ($request->gambarSoalLama) {
+                Storage::delete($request->gambarSoalLama);
+            }
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->update();
+
+        Alert::success('Success', 'Soal Telah Diupdate');
+        return redirect()->back()->with('success', 'Soal Telah Diupdate');
+    }
+
+    public function destroy($id)
+    {
+        $soal = Soal::where('id', $id)->first();
+        $soal->delete();
+
+        Alert::success('Success', 'Soal Telah Dihapus');
+        return redirect()->back()->with('success', 'Soal Telah Dihapus');
     }
 }

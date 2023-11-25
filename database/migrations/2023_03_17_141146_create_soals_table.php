@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('soal');
             $table->string('gambar_soal')->nullable();
             $table->string('tingkat');
+            $table->unsignedBigInteger('matkul_id');
+            $table->foreign('matkul_id')->references('id')->on('matkuls')->onDelete('cascade');
             $table->timestamps();
         });
     }

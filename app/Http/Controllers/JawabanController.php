@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Soal;
+use App\Models\Matkul;
 use App\Models\Jawaban;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,7 @@ class JawabanController extends Controller
     {
         $soal = Soal::where('id', $id)->first();
         $jawaban = Jawaban::where('soal_id', $id)->get();
+        $matkul = Matkul::where('id', $soal->matkul_id)->first();
 
         foreach ($jawaban as $key => $value) {
             if ($key == 0) {
@@ -29,12 +31,13 @@ class JawabanController extends Controller
             }
         }
 
-        return view('Admin.soal.jawaban', compact('soal', 'a', 'b', 'c', 'd', 'e', 'id'));
+        return view('Dosen.Matkul.jawaban', compact('soal', 'matkul', 'a', 'b', 'c', 'd', 'e', 'id'));
     }
 
     public function update(Request $request, $id)
     {
         $jawaban = Jawaban::where('soal_id', $id)->get();
+        $soal = Soal::where('id', $id)->first();
 
         foreach ($jawaban as $key => $value) {
             if ($key == 0) {
@@ -110,17 +113,7 @@ class JawabanController extends Controller
             }
         }
 
-        if ($jawaban[0]->soal->tingkat == 'mudah') {
-            Alert::success('Success', 'Jawaban berhasil disimpan');
-            return redirect('/soalmudah')->with('success', 'Jawaban Di Update');
-        }
-        if ($jawaban[0]->soal->tingkat == 'menengah') {
-            Alert::success('Success', 'Jawaban berhasil disimpan');
-            return redirect('/soal-menengah')->with('success', 'Jawaban Di Update');
-        }
-        if ($jawaban[0]->soal->tingkat == 'sulit') {
-            Alert::success('Success', 'Jawaban berhasil disimpan');
-            return redirect('/soal-sulit')->with('success', 'Jawaban Di Update');
-        }
+        Alert::success('Success', 'Jawaban Di Update');
+        return redirect('/dosen/matkul/'.$soal->matkul_id)->with('success', 'Jawaban Di Update');
     }
 }
