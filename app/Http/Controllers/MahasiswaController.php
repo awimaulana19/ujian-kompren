@@ -12,15 +12,31 @@ class MahasiswaController extends Controller
     public function index()
     {
         $user = User::where('roles', 'mahasiswa')->get();
-        return view('Admin.Mahasiswa.index', compact('user'));
+        $dosen = User::where('roles', 'dosen')->get();
+        return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::where('id', $id)->first();
-        $data = $request->all();
+        $request->validate([
+            'is_verification' => 'required',
+            'penguji_1' => 'required',
+            'penguji_2' => 'required',
+            'penguji_3' => 'required',
+            'matkul_1' => 'required',
+            'matkul_2' => 'required',
+            'matkul_3' => 'required',
+        ]);
 
-        $user->update($data);
+        $user = User::where('id', $id)->first();
+        $user->is_verification = $request->is_verification;
+        $user->penguji = json_encode([
+            'penguji_1' => ['user_id' => $request->penguji_1, 'matkul_id' => $request->matkul_1],
+            'penguji_2' => ['user_id' => $request->penguji_2, 'matkul_id' => $request->matkul_2],
+            'penguji_3' => ['user_id' => $request->penguji_3, 'matkul_id' => $request->matkul_3],
+        ]);
+
+        $user->update();
         Alert::success('Success', 'Verifikasi akun berhasil');
         return redirect('/admin/mahasiswa');
     }

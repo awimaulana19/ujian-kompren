@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Matkul;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SoalController;
@@ -35,6 +37,12 @@ Route::group(['middleware' => ['auth', 'OnlyAdmin']], function () {
     Route::post('/admin/mahasiswa/update/{id}', [MahasiswaController::class, 'update']);
     Route::get('/admin/mahasiswa/delete/{id}', [MahasiswaController::class, 'destroy']);
 
+    Route::get('/matkul-list', function (Request $request) {
+        $matkul = Matkul::where('user_id', $request->penguji)->get();
+
+        return response()->json($matkul);
+    });
+
     // dosen
     Route::get('/admin/dosen', [DosenController::class, 'index']);
     Route::post('/admin/dosen', [DosenController::class, 'store']);
@@ -57,7 +65,7 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
     Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy']);
     Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
-    
+
     Route::get('/soal-mudah', [SoalController::class, 'index_mudah']);
     Route::post('/soal-mudah', [SoalController::class, 'store_mudah']);
     Route::get('/soal-menengah', [SoalController::class, 'index_menengah']);

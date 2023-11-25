@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Soal;
 use App\Models\User;
 use App\Models\Hasil;
+use App\Models\Matkul;
 use App\Models\Countdown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +46,11 @@ class AuthController extends Controller
                 'username' => $request->username,
                 'password' => $hashedPassword,
                 'roles' => $request->roles,
+                'penguji' => json_encode([
+                    'penguji_1' => ['user_id' => 0, 'matkul_id' => 0],
+                    'penguji_2' => ['user_id' => 0, 'matkul_id' => 0],
+                    'penguji_3' => ['user_id' => 0, 'matkul_id' => 0],
+                ]),
                 'sk_kompren' => $nama_file,
             ]);
         }
@@ -70,9 +76,14 @@ class AuthController extends Controller
         $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
         return view('Dosen.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
     }
-    
+
     public function dashboard_mahasiswa()
     {
+        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
+        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
+        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
+
+        return view('Mahasiswa.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
     }
 
     public function login_action(Request $request)

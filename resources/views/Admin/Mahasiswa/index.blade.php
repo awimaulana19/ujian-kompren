@@ -84,6 +84,68 @@
                                                                     Nonaktifkan</option>
                                                             </select>
                                                         </div>
+                                                        <div class="mb-3">
+                                                            @php
+                                                                $penguji = json_decode($item->penguji);
+                                                            @endphp
+                                                            <label for="penguji_1{{ $item->id }}"
+                                                                class="form-label">Penguji 1</label>
+                                                            <select name="penguji_1" id="penguji_1{{ $item->id }}"
+                                                                class="form-select"
+                                                                onchange="updateMatkul1{{ $item->id }}()">
+                                                                <option value="">Pilih Dosen</option>
+                                                                @foreach ($dosen as $row)
+                                                                    <option value="{{ $row->id }}"
+                                                                        {{ $row->id == $penguji->penguji_1->user_id ? 'selected' : '' }}>
+                                                                        {{ $row->nama }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <select name="matkul_1" id="matkul_1{{ $item->id }}"
+                                                                class="form-select mt-2">
+                                                                <option value="">Pilih Matkul</option>
+                                                            </select>
+                                                            <input type="hidden" id="value_matkul_1{{ $item->id }}"
+                                                                value="{{ $penguji->penguji_1->matkul_id }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="penguji_2{{ $item->id }}"
+                                                                class="form-label">Penguji 2</label>
+                                                            <select name="penguji_2" id="penguji_2{{ $item->id }}"
+                                                                class="form-select"
+                                                                onchange="updateMatkul2{{ $item->id }}()">
+                                                                <option value="">Pilih Dosen</option>
+                                                                @foreach ($dosen as $row)
+                                                                    <option value="{{ $row->id }}" {{ $row->id == $penguji->penguji_2->user_id ? 'selected' : '' }}>
+                                                                        {{ $row->nama }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <select name="matkul_2" id="matkul_2{{ $item->id }}"
+                                                                class="form-select mt-2">
+                                                                <option value="">Pilih Matkul</option>
+                                                            </select>
+                                                            <input type="hidden" id="value_matkul_2{{ $item->id }}"
+                                                                value="{{ $penguji->penguji_2->matkul_id }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="penguji_3{{ $item->id }}"
+                                                                class="form-label">Penguji 3</label>
+                                                            <select name="penguji_3" id="penguji_3{{ $item->id }}"
+                                                                class="form-select"
+                                                                onchange="updateMatkul3{{ $item->id }}()">
+                                                                <option value="">Pilih Dosen</option>
+                                                                @foreach ($dosen as $row)
+                                                                    <option value="{{ $row->id }}" {{ $row->id == $penguji->penguji_3->user_id ? 'selected' : '' }}>
+                                                                        {{ $row->nama }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <select name="matkul_3" id="matkul_3{{ $item->id }}"
+                                                                class="form-select mt-2">
+                                                                <option value="">Pilih Matkul</option>
+                                                            </select>
+                                                            <input type="hidden" id="value_matkul_3{{ $item->id }}"
+                                                                value="{{ $penguji->penguji_3->matkul_id }}">
+                                                        </div>
                                                         <div class="d-flex justify-content-end gap-2">
                                                             <button type="button" class="btn btn-secondary"
                                                                 data-bs-dismiss="modal">Close</button>
@@ -103,4 +165,106 @@
             </div>
         </div>
     </div>
+
+    @foreach ($user as $item)
+        <script>
+            document.addEventListener('DOMContentLoaded', async function() {
+                await updateMatkul1{{ $item->id }}();
+            });
+
+            async function updateMatkul1{{ $item->id }}() {
+                const penguji = document.getElementById('penguji_1{{ $item->id }}').value;
+                const value_matkul = document.getElementById('value_matkul_1{{ $item->id }}').value;
+
+                document.getElementById('matkul_1{{ $item->id }}').innerHTML =
+                    '<option value="">Pilih Matkul</option>';
+                document.getElementById('matkul_1{{ $item->id }}').disabled = true;
+
+                try {
+                    const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                    const data = await response.json();
+
+                    data.forEach(matkul => {
+                        const option = document.createElement('option');
+                        if (value_matkul == matkul.id) {
+                            option.selected = true;
+                        }
+                        option.value = matkul.id;
+                        option.text = matkul.nama;
+                        document.getElementById('matkul_1{{ $item->id }}').appendChild(option);
+                    });
+
+                    document.getElementById('matkul_1{{ $item->id }}').disabled = false;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async function() {
+                await updateMatkul2{{ $item->id }}();
+            });
+
+            async function updateMatkul2{{ $item->id }}() {
+                const penguji = document.getElementById('penguji_2{{ $item->id }}').value;
+                const value_matkul = document.getElementById('value_matkul_2{{ $item->id }}').value;
+
+                document.getElementById('matkul_2{{ $item->id }}').innerHTML =
+                    '<option value="">Pilih Matkul</option>';
+                document.getElementById('matkul_2{{ $item->id }}').disabled = true;
+
+                try {
+                    const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                    const data = await response.json();
+
+                    data.forEach(matkul => {
+                        const option = document.createElement('option');
+                        if (value_matkul == matkul.id) {
+                            option.selected = true;
+                        }
+                        option.value = matkul.id;
+                        option.text = matkul.nama;
+                        document.getElementById('matkul_2{{ $item->id }}').appendChild(option);
+                    });
+
+                    document.getElementById('matkul_2{{ $item->id }}').disabled = false;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async function() {
+                await updateMatkul3{{ $item->id }}();
+            });
+
+            async function updateMatkul3{{ $item->id }}() {
+                const penguji = document.getElementById('penguji_3{{ $item->id }}').value;
+                const value_matkul = document.getElementById('value_matkul_3{{ $item->id }}').value;
+
+                document.getElementById('matkul_3{{ $item->id }}').innerHTML =
+                    '<option value="">Pilih Matkul</option>';
+                document.getElementById('matkul_3{{ $item->id }}').disabled = true;
+
+                try {
+                    const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                    const data = await response.json();
+
+                    data.forEach(matkul => {
+                        const option = document.createElement('option');
+                        if (value_matkul == matkul.id) {
+                            option.selected = true;
+                        }
+                        option.value = matkul.id;
+                        option.text = matkul.nama;
+                        document.getElementById('matkul_3{{ $item->id }}').appendChild(option);
+                    });
+
+                    document.getElementById('matkul_3{{ $item->id }}').disabled = false;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        </script>
+    @endforeach
 @endsection

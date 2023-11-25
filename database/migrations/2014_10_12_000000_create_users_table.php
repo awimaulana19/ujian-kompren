@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('roles');
             $table->string('sk_kompren')->nullable();
+            $table->json('penguji')->nullable();
             $table->boolean('is_verification')->default(false);
             $table->rememberToken();
             $table->timestamps();
