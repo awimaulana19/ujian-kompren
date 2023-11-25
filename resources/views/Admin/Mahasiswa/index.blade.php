@@ -13,10 +13,10 @@
                     <table class="table table-hover" id="table1">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Nama</th>
+                                <th class="text-center">No</th>
+                                <th class="text-center">Nama</th>
                                 <th class="text-center">Username/Nim</th>
-                                <th>Sk Kompren</th>
+                                <th class="text-center">Sk Kompren</th>
                                 <th class="text-center">Status Akun</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -24,10 +24,10 @@
                         <tbody>
                             @foreach ($user as $item)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $item->nama }}</td>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $item->nama }}</td>
                                     <td class="text-center"><span>{{ $item->username }}</span></td>
-                                    <td>
+                                    <td class="text-center">
                                         <a class="text-decoration-underline"
                                             href="{{ asset('storage/skKompren/' . $item->sk_kompren) }}"
                                             target="_blank">Lihat

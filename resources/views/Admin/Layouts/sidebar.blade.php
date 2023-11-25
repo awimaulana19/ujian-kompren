@@ -1,7 +1,7 @@
  <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
      <div class="app-brand demo">
          <a href="" class="app-brand-link">
-            <h1>Admin</h1>
+             <h1>Admin</h1>
          </a>
 
          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -11,17 +11,17 @@
 
      <div class="menu-inner-shadow"></div>
      @if (auth()->user()->roles == 'admin')
-     <ul class="menu-inner py-1">
-         <li class="menu-header small text-uppercase">
-             <span class="menu-header-text">Dashboard</span>
-         </li>
-         <li class="menu-item {{ request()->is('dashboard*') ? 'active' : '' }}">
-             <a href="/dashboard" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-home-circle"></i>
-                 <div data-i18n="Analytics">Dashboard</div>
-             </a>
-         </li>
-         <li class="menu-header small text-uppercase">
+         <ul class="menu-inner py-1">
+             <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Dashboard</span>
+             </li>
+             <li class="menu-item {{ request()->is('dashboard*') ? 'active' : '' }}">
+                 <a href="/dashboard" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-home-circle"></i>
+                     <div data-i18n="Analytics">Dashboard</div>
+                 </a>
+             </li>
+             {{-- <li class="menu-header small text-uppercase">
              <span class="menu-header-text">Data Soal</span>
          </li>
          <li id="soalMudah" class="menu-item">
@@ -41,23 +41,32 @@
                  <i class="menu-icon tf-icons bx bxs-book"></i>
                  <div data-i18n="Analytics">Soal Sulit</div>
              </a>
-         </li>
-         <li class="menu-header small text-uppercase">
-             <span class="menu-header-text">Pengguna</span>
-         </li>
-         <li id="dosen" class="menu-item">
-             <a href="/admin/dosen" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-user-badge"></i>
-                 <div data-i18n="Analytics">Data Dosen</div>
-             </a>
-         </li>
-         <li id="mahasiswa" class="menu-item">
-             <a href="/admin/mahasiswa" class="menu-link">
-                 <i class="menu-icon tf-icons bx bxs-user"></i>
-                 <div data-i18n="Analytics">Data Mahasiswa</div>
-             </a>
-         </li>
-     </ul>
+         </li> --}}
+             <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Pengguna</span>
+             </li>
+             <li id="dosen" class="menu-item">
+                 <a href="/admin/dosen" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-user-badge"></i>
+                     <div data-i18n="Analytics">Data Dosen</div>
+                 </a>
+             </li>
+             <li id="mahasiswa" class="menu-item">
+                 <a href="/admin/mahasiswa" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-user"></i>
+                     <div data-i18n="Analytics">Data Mahasiswa</div>
+                 </a>
+             </li>
+             <li class="menu-header small text-uppercase">
+                 <span class="menu-header-text">Pengujian</span>
+             </li>
+             <li id="matkul" class="menu-item">
+                 <a href="/admin/matkul" class="menu-link">
+                     <i class="menu-icon tf-icons bx bxs-book"></i>
+                     <div data-i18n="Analytics">Mata Kuliah</div>
+                 </a>
+             </li>
+         </ul>
      @endif
  </aside>
 
@@ -76,5 +85,8 @@
      }
      if (document.title === "Data Mahasiswa") {
          document.getElementById("mahasiswa").classList.add("active");
+     }
+     if (document.title === "Mata Kuliah") {
+         document.getElementById("matkul").classList.add("active");
      }
  </script>

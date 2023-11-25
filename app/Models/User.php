@@ -50,4 +50,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Hasil::class);
     }
+
+    public function matkul()
+    {
+        return $this->hasMany(Matkul::class);
+    }
 }

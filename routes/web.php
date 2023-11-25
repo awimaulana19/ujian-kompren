@@ -2,9 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DosenController;
 use App\Http\Controllers\SoalController;
+use App\Http\Controllers\DosenController;
 use App\Http\Controllers\HasilController;
+use App\Http\Controllers\MatkulController;
 use App\Http\Controllers\JawabanController;
 use App\Http\Controllers\MahasiswaController;
 
@@ -40,6 +41,12 @@ Route::group(['middleware' => ['auth', 'OnlyAdmin']], function () {
     Route::post('/admin/dosen', [DosenController::class, 'store']);
     Route::post('/admin/dosen/update/{id}', [DosenController::class, 'update']);
     Route::get('/admin/dosen/delete/{id}', [DosenController::class, 'destroy']);
+
+    // matkul
+    Route::get('/admin/matkul', [MatkulController::class, 'index']);
+    Route::post('/admin/matkul', [MatkulController::class, 'store']);
+    Route::post('/admin/matkul/update/{id}', [MatkulController::class, 'update']);
+    Route::get('/admin/matkul/delete/{id}', [MatkulController::class, 'destroy']);
 
     Route::get('/soal-mudah', [SoalController::class, 'index_mudah']);
     Route::post('/soal-mudah', [SoalController::class, 'store_mudah']);
