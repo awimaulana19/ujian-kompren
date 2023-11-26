@@ -21,6 +21,8 @@ use App\Http\Controllers\MahasiswaController;
 |
 */
 
+Route::get('/', [AuthController::class, 'beranda']);
+
 Route::get('/login', [AuthController::class, 'halaman_login'])->name('login');
 Route::post('/login', [AuthController::class, 'login_action'])->name('login.action');
 
