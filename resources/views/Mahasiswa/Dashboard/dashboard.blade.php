@@ -29,15 +29,15 @@
             $data_lengkap_penguji = [];
 
             foreach ($penguji as $key => $value) {
-                $user = app(\App\Models\User::class)::find($value['user_id']);
+                $data_user = app(\App\Models\User::class)::find($value['user_id']);
 
-                $matkul = app(\App\Models\Matkul::class)::find($value['matkul_id']);
+                $matkul_user = app(\App\Models\Matkul::class)::find($value['matkul_id']);
 
                 $data_lengkap_penguji[$key] = [
                     'user_id' => $value['user_id'],
-                    'nama' => $user->nama,
+                    'nama' => $data_user->nama,
                     'matkul_id' => $value['matkul_id'],
-                    'matkul_nama' => $matkul->nama,
+                    'matkul_nama' => $matkul_user->nama,
                 ];
             }
 
