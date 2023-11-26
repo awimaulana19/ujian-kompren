@@ -107,15 +107,15 @@
              $data_lengkap_penguji = [];
 
              foreach ($penguji as $key => $value) {
-                 $user = app(\App\Models\User::class)::find($value['user_id']);
+                 $data_user = app(\App\Models\User::class)::find($value['user_id']);
 
-                 $matkul = app(\App\Models\Matkul::class)::find($value['matkul_id']);
+                 $data_matkul = app(\App\Models\Matkul::class)::find($value['matkul_id']);
 
                  $data_lengkap_penguji[$key] = [
                      'user_id' => $value['user_id'],
-                     'nama' => $user->nama,
+                     'nama' => $data_user->nama,
                      'matkul_id' => $value['matkul_id'],
-                     'matkul_nama' => $matkul->nama,
+                     'matkul_nama' => $data_matkul->nama,
                  ];
              }
 
@@ -125,8 +125,8 @@
              <li class="menu-header small text-uppercase">
                  <span class="menu-header-text">Dashboard</span>
              </li>
-             <li class="menu-item {{ request()->is('dashboard-dosen*') ? 'active' : '' }}">
-                 <a href="/dashboard-dosen" class="menu-link">
+             <li class="menu-item {{ request()->is('dashboard-mahasiswa*') ? 'active' : '' }}">
+                 <a href="/dashboard-mahasiswa" class="menu-link">
                      <i class="menu-icon tf-icons bx bxs-home-circle"></i>
                      <div data-i18n="Analytics">Dashboard</div>
                  </a>
@@ -135,7 +135,7 @@
                  <span class="menu-header-text">Pengujian</span>
              </li>
              @foreach ($penguji as $item)
-                 <li class="menu-item {{ isset($matkul) && $matkul->id === $item['matkul_id'] ? 'active' : '' }}">
+                 <li class="menu-item {{ isset($matkul) && $matkul->id == $item['matkul_id'] ? 'active' : '' }}">
                      <a href="/mahasiswa/matkul/{{ $item['matkul_id'] }}" class="menu-link">
                          <i class="menu-icon tf-icons bx bxs-book"></i>
                          <div data-i18n="Analytics">{{ $item['matkul_nama'] }}</div>

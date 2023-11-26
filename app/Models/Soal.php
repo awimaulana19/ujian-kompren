@@ -19,4 +19,9 @@ class Soal extends Model
     public function matkul(){
         return $this->belongsTo(Matkul::class, 'matkul_id');
     }
+
+    public function hasil()
+    {
+        return $this->hasMany(Hasil::class);
+    }
 }

@@ -47,8 +47,8 @@ class MahasiswaController extends Controller
         $user = User::find($id);
 
         // Hapus sk_kompren
-        if (Storage::exists('public/skKompren/' . $user->sk_kompren)) {
-            Storage::delete('public/skKompren/' . $user->sk_kompren);
+        if (Storage::exists('skKompren/' . $user->sk_kompren)) {
+            Storage::delete('skKompren/' . $user->sk_kompren);
         }
 
         $user->delete();

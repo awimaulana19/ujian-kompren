@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('countdowns', function (Blueprint $table) {
+        Schema::create('hasils', function (Blueprint $table) {
             $table->id();
-            $table->string('tingkat');
-            $table->date('countdown_date');
-            $table->time('countdown_time');
+            $table->foreignId('user_id');
+            $table->foreignId('matkul_id');
+            $table->foreignId('soal_id');
+            $table->boolean('benar');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('countdowns');
+        Schema::dropIfExists('hasils');
     }
 };

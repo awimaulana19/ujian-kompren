@@ -63,22 +63,16 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
     Route::post('/dosen/soal', [SoalController::class, 'store']);
     Route::post('/dosen/soal/edit/{id}', [SoalController::class, 'update']);
     Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy']);
+    Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish']);
+    Route::get('/dosen/end/{id}', [SoalController::class, 'set_end']);
     Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
-
-    Route::get('/soal-mudah', [SoalController::class, 'index_mudah']);
-    Route::post('/soal-mudah', [SoalController::class, 'store_mudah']);
-    Route::get('/soal-menengah', [SoalController::class, 'index_menengah']);
-    Route::post('/soal-menengah', [SoalController::class, 'store_menengah']);
-    Route::get('/soal-sulit', [SoalController::class, 'index_sulit']);
-    Route::post('/soal-sulit', [SoalController::class, 'store_sulit']);
-    Route::post('/countdown-mudah', [SoalController::class, 'countdown_mudah']);
-    Route::post('/countdown-menengah', [SoalController::class, 'countdown_menengah']);
-    Route::post('/countdown-sulit', [SoalController::class, 'countdown_sulit']);
-    Route::post('/countdown/edit/{id}', [SoalController::class, 'countdownEdit']);
-    Route::get('/countdown/hapus/{id}', [SoalController::class, 'countdownHapus']);
 });
 
 Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {
     Route::get('/dashboard-mahasiswa', [AuthController::class, 'dashboard_mahasiswa']);
+
+    Route::get('/mahasiswa/matkul/{id}', [SoalController::class, 'ujian_mahasiswa']);
+    Route::get('/mahasiswa/soal/{id}', [SoalController::class, 'soal_mahasiswa'])->middleware('StartUjian');
+    Route::post('/mahasiswa/soal/{id}/{user_id}', [SoalController::class, 'jawab_mahasiswa'])->middleware('StartUjian');
 });

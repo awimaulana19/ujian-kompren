@@ -66,6 +66,6 @@ class Kernel extends HttpKernel
         'OnlyAdmin' => \App\Http\Middleware\OnlyAdmin::class,
         'OnlyDosen' => \App\Http\Middleware\OnlyDosen::class,
         'OnlyMahasiswa' => \App\Http\Middleware\OnlyMahasiswa::class,
-        'countdown' => \App\Http\Middleware\CountdownTimer::class,
+        'StartUjian' => \App\Http\Middleware\StartUjian::class,
     ];
 }

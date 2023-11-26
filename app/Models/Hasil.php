@@ -18,4 +18,8 @@ class Hasil extends Model
     public function soal(){
         return $this->belongsTo(Soal::class);
     }
+
+    public function matkul(){
+        return $this->belongsTo(Matkul::class);
+    }
 }

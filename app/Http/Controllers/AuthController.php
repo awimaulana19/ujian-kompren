@@ -37,7 +37,7 @@ class AuthController extends Controller
             $nama_file = time() . "_" . $file->getClientOriginalName();
 
             // Simpan file ke direktori storage
-            $file->storeAs('public/skKompren', $nama_file);
+            $file->storeAs('skKompren', $nama_file);
 
             $hashedPassword = bcrypt($request->password);
 
@@ -47,12 +47,19 @@ class AuthController extends Controller
                 'penguji_3' => ['user_id' => 0, 'matkul_id' => 0],
             ]);
 
+            $nilai = json_encode([
+                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
+                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
+                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
+            ]);
+
             $regis = new User([
                 'nama' => $request->nama,
                 'username' => $request->username,
                 'password' => $hashedPassword,
                 'roles' => $request->roles,
                 'penguji' => $penguji,
+                'nilai' => $nilai,
                 'sk_kompren' => $nama_file,
             ]);
         }

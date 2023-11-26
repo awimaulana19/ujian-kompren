@@ -19,4 +19,9 @@ class Matkul extends Model
     {
         return $this->hasMany(Soal::class);
     }
+
+    public function hasil()
+    {
+        return $this->hasMany(Hasil::class);
+    }
 }
