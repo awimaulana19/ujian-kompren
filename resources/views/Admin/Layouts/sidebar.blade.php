@@ -1,15 +1,10 @@
  <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
      <div class="app-brand demo">
          <a href="" class="app-brand-link">
-             @if (auth()->user()->roles == 'admin')
-                 <h1>Admin</h1>
-             @endif
-             @if (auth()->user()->roles == 'dosen')
-                 <h1>Dosen</h1>
-             @endif
-             @if (auth()->user()->roles == 'mahasiswa')
-                 <h1>Mahasiswa</h1>
-             @endif
+             <span>
+                 <h6 class="mb-2">{{ auth()->user()->nama }}</h6>
+                 <p class="mb-0 text-muted">{{ auth()->user()->username }}</p>
+             </span>
          </a>
 
          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -125,8 +120,8 @@
              <li class="menu-header small text-uppercase">
                  <span class="menu-header-text">Dashboard</span>
              </li>
-             <li class="menu-item {{ request()->is('dashboard-dosen*') ? 'active' : '' }}">
-                 <a href="/dashboard-dosen" class="menu-link">
+             <li class="menu-item {{ request()->is('dashboard-mahasiswa*') ? 'active' : '' }}">
+                 <a href="/dashboard-mahasiswa" class="menu-link">
                      <i class="menu-icon tf-icons bx bxs-home-circle"></i>
                      <div data-i18n="Analytics">Dashboard</div>
                  </a>
