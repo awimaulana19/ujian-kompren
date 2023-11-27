@@ -48,13 +48,13 @@
                                     @endphp
                                     @if ($dapat_ujian)
                                         <td class="text-center">
-                                            <a href="/dosen/dapat-ujian/{{ $item->id }}" class="btn btn-sm btn-success">
+                                            <a href="/dosen/dapat-ujian/{{ $matkul_pengujian->id }}/{{ $item->id }}" class="btn btn-sm btn-success">
                                                 Dapat Ujian 
                                             </a>
                                         </td>
                                     @else
                                         <td class="text-center">
-                                            <a href="/dosen/dapat-ujian/{{ $item->id }}" class="btn btn-sm btn-danger">
+                                            <a href="/dosen/dapat-ujian/{{ $matkul_pengujian->id }}/{{ $item->id }}" class="btn btn-sm btn-danger">
                                                 Belum Dapat Ujian
                                             </a>
                                         </td>
