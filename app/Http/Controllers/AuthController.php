@@ -4,14 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Soal;
 use App\Models\User;
-use App\Models\Hasil;
-use App\Models\Matkul;
-use App\Models\Countdown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class AuthController extends Controller

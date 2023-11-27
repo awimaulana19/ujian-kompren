@@ -69,6 +69,9 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
     Route::get('/dosen/end/{id}', [SoalController::class, 'set_end']);
     Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
+
+    Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen']);
+    Route::get('/dosen/dapat-ujian/{id}', [MahasiswaController::class, 'dapat_ujian']);
 });
 
 Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {

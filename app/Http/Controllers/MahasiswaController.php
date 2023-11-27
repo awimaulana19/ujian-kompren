@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -31,9 +33,9 @@ class MahasiswaController extends Controller
         $user = User::where('id', $id)->first();
         $user->is_verification = $request->is_verification;
         $user->penguji = json_encode([
-            'penguji_1' => ['user_id' => $request->penguji_1, 'matkul_id' => $request->matkul_1],
-            'penguji_2' => ['user_id' => $request->penguji_2, 'matkul_id' => $request->matkul_2],
-            'penguji_3' => ['user_id' => $request->penguji_3, 'matkul_id' => $request->matkul_3],
+            'penguji_1' => ['user_id' => $request->penguji_1, 'matkul_id' => $request->matkul_1, 'dapat_ujian' => false],
+            'penguji_2' => ['user_id' => $request->penguji_2, 'matkul_id' => $request->matkul_2, 'dapat_ujian' => false],
+            'penguji_3' => ['user_id' => $request->penguji_3, 'matkul_id' => $request->matkul_3, 'dapat_ujian' => false],
         ]);
 
         $user->update();
@@ -54,5 +56,54 @@ class MahasiswaController extends Controller
         $user->delete();
         Alert::success('Success', 'Berhasil menghapus akun');
         return redirect('/admin/mahasiswa');
+    }
+
+    public function pengujian_dosen($id)
+    {
+        $dosen = Auth::user();
+        $mahasiswa = [];
+        $matkul_pengujian = Matkul::where('id', $id)->first();
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_pengujian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        return view('Mahasiswa.Pengujian.index', compact('mahasiswa', 'matkul_pengujian'));
+    }
+
+    public function dapat_ujian($id)
+    {
+        $dosen = Auth::user();
+        $user = User::where('id', $id)->first();
+
+        $originalData = json_decode($user->penguji, true);
+
+        if ($dosen->id == $originalData['penguji_1']['user_id']) {
+            $originalData['penguji_1']['dapat_ujian'] = !$originalData['penguji_1']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_2']['user_id']) {
+            $originalData['penguji_2']['dapat_ujian'] = !$originalData['penguji_2']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_3']['user_id']) {
+            $originalData['penguji_3']['dapat_ujian'] = !$originalData['penguji_3']['dapat_ujian'];
+        }
+
+        $updatedJson = json_encode($originalData);
+
+        $user->penguji = $updatedJson;
+        $user->update();
+
+        Alert::success('Success', 'Berhasil mengupdate data');
+        return redirect()->back();
     }
 }
