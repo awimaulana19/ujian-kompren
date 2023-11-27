@@ -72,6 +72,9 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
 
     Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen']);
     Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian']);
+
+    Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen']);
+    Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);
 });
 
 Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {

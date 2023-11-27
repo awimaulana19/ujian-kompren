@@ -40,15 +40,15 @@ class AuthController extends Controller
             $hashedPassword = bcrypt($request->password);
 
             $penguji = json_encode([
-                'penguji_1' => ['user_id' => 0, 'matkul_id' => 0],
-                'penguji_2' => ['user_id' => 0, 'matkul_id' => 0],
-                'penguji_3' => ['user_id' => 0, 'matkul_id' => 0],
+                'penguji_1' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+                'penguji_2' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+                'penguji_3' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
             ]);
 
             $nilai = json_encode([
-                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
-                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
-                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0],
+                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
+                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
+                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
             ]);
 
             $regis = new User([

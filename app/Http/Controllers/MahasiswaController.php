@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Hasil;
 use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,11 +33,21 @@ class MahasiswaController extends Controller
 
         $user = User::where('id', $id)->first();
         $user->is_verification = $request->is_verification;
-        $user->penguji = json_encode([
-            'penguji_1' => ['user_id' => $request->penguji_1, 'matkul_id' => $request->matkul_1, 'dapat_ujian' => false],
-            'penguji_2' => ['user_id' => $request->penguji_2, 'matkul_id' => $request->matkul_2, 'dapat_ujian' => false],
-            'penguji_3' => ['user_id' => $request->penguji_3, 'matkul_id' => $request->matkul_3, 'dapat_ujian' => false],
-        ]);
+
+        $originalData = json_decode($user->penguji, true);
+
+        $originalData['penguji_1']['user_id'] = $request->penguji_1;
+        $originalData['penguji_1']['matkul_id'] = $request->matkul_1;
+
+        $originalData['penguji_2']['user_id'] = $request->penguji_2;
+        $originalData['penguji_2']['matkul_id'] = $request->matkul_2;
+
+        $originalData['penguji_3']['user_id'] = $request->penguji_3;
+        $originalData['penguji_3']['matkul_id'] = $request->matkul_3;
+
+        $updatedJson = json_encode($originalData);
+
+        $user->penguji = $updatedJson;
 
         $user->update();
         Alert::success('Success', 'Verifikasi akun berhasil');
@@ -78,7 +89,7 @@ class MahasiswaController extends Controller
             }
         }
 
-        return view('Mahasiswa.Pengujian.index', compact('mahasiswa', 'matkul_pengujian'));
+        return view('Dosen.Pengujian.index', compact('mahasiswa', 'matkul_pengujian'));
     }
 
     public function dapat_ujian($id, $user_id)
@@ -101,6 +112,60 @@ class MahasiswaController extends Controller
         $updatedJson = json_encode($originalData);
 
         $user->penguji = $updatedJson;
+        $user->update();
+
+        Alert::success('Success', 'Berhasil mengupdate data');
+        return redirect()->back();
+    }
+
+    public function penilaian_dosen($id)
+    {
+        $dosen = Auth::user();
+        $mahasiswa = [];
+        $matkul_penilaian = Matkul::where('id', $id)->first();
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_penilaian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        return view('Dosen.Penilaian.index', compact('mahasiswa', 'matkul_penilaian'));
+    }
+
+    public function remidial($id, $user_id)
+    {
+        $hasil = Hasil::where('user_id', $user_id)->where('matkul_id', $id)->get();
+
+        Hasil::destroy($hasil);
+
+        $dosen = Auth::user();
+        $user = User::where('id', $user_id)->first();
+
+        $originalData = json_decode($user->penguji, true);
+        $originalNilai = json_decode($user->nilai, true);
+
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
+            $originalNilai['nilai_penguji_1']['remidial'] = true;
+        }
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
+            $originalNilai['nilai_penguji_2']['remidial'] = true;
+        }
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
+            $originalNilai['nilai_penguji_2']['remidial'] = true;
+        }
+
+        $updatedJson = json_encode($originalNilai);
+
+        $user->nilai = $updatedJson;
         $user->update();
 
         Alert::success('Success', 'Berhasil mengupdate data');

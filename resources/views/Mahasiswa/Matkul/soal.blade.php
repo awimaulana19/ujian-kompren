@@ -18,21 +18,15 @@
                     <h4>Soal</h4>
                     <h5 id="countdown"></h5>
                 </div>
-                @php
-                    $soal = $soal->shuffle();
-                @endphp
                 @foreach ($soal as $item)
-                    @php
-                        $jawaban = $item->jawaban->shuffle();
-                    @endphp
-                    <div class="soal">
+                    <div class="soal mb-3">
                         <h6>{{ $loop->iteration }}. {!! $item->soal !!}</h6>
                         @if ($item->gambar_soal)
                             <img src="{{ asset('storage/' . $item->gambar_soal) }}" class="mb-3" width="40%"
                                 style="max-height: 400px">
                         @endif
                         <div class="pilih">
-                            @foreach ($jawaban as $pilih)
+                            @foreach ($item->jawaban as $pilih)
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="{{ 'soal' . $item->id }}"
                                         id="{{ 'radio' . $pilih->id }}" value="{{ $pilih->id }}">
@@ -84,38 +78,38 @@
         let counter = 0;
         const maxCount = 3;
 
-        document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === 'hidden') {
-                counter++;
-                if (counter === maxCount) {
-                    form.submit();
-                } else if (counter < maxCount) {
-                    warningMessage.classList.add('alert', 'alert-danger');
-                    warningMessage.textContent =
-                        'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
-                    setTimeout(function() {
-                        warningMessage.classList.remove('alert', 'alert-danger');
-                        warningMessage.textContent = '';
-                    }, 7000);
-                }
-            }
-        });
+        // document.addEventListener("visibilitychange", function() {
+        //     if (document.visibilityState === 'hidden') {
+        //         counter++;
+        //         if (counter === maxCount) {
+        //             form.submit();
+        //         } else if (counter < maxCount) {
+        //             warningMessage.classList.add('alert', 'alert-danger');
+        //             warningMessage.textContent =
+        //                 'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
+        //             setTimeout(function() {
+        //                 warningMessage.classList.remove('alert', 'alert-danger');
+        //                 warningMessage.textContent = '';
+        //             }, 7000);
+        //         }
+        //     }
+        // });
 
-        let counter2 = 0;
+        // let counter2 = 0;
 
-        window.addEventListener('blur', function() {
-            counter2++;
-            if (counter2 === maxCount) {
-                form.submit();
-            } else if (counter2 < maxCount) {
-                warningMessage.classList.add('alert', 'alert-danger');
-                warningMessage.textContent =
-                    'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
-                setTimeout(function() {
-                    warningMessage.classList.remove('alert', 'alert-danger');
-                    warningMessage.textContent = '';
-                }, 7000);
-            }
-        });
+        // window.addEventListener('blur', function() {
+        //     counter2++;
+        //     if (counter2 === maxCount) {
+        //         form.submit();
+        //     } else if (counter2 < maxCount) {
+        //         warningMessage.classList.add('alert', 'alert-danger');
+        //         warningMessage.textContent =
+        //             'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
+        //         setTimeout(function() {
+        //             warningMessage.classList.remove('alert', 'alert-danger');
+        //             warningMessage.textContent = '';
+        //         }, 7000);
+        //     }
+        // });
     </script>
 @endsection
