@@ -81,20 +81,20 @@ class MahasiswaController extends Controller
         return view('Mahasiswa.Pengujian.index', compact('mahasiswa', 'matkul_pengujian'));
     }
 
-    public function dapat_ujian($id)
+    public function dapat_ujian($id, $user_id)
     {
         $dosen = Auth::user();
-        $user = User::where('id', $id)->first();
+        $user = User::where('id', $user_id)->first();
 
         $originalData = json_decode($user->penguji, true);
 
-        if ($dosen->id == $originalData['penguji_1']['user_id']) {
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
             $originalData['penguji_1']['dapat_ujian'] = !$originalData['penguji_1']['dapat_ujian'];
         }
-        if ($dosen->id == $originalData['penguji_2']['user_id']) {
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
             $originalData['penguji_2']['dapat_ujian'] = !$originalData['penguji_2']['dapat_ujian'];
         }
-        if ($dosen->id == $originalData['penguji_3']['user_id']) {
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
             $originalData['penguji_3']['dapat_ujian'] = !$originalData['penguji_3']['dapat_ujian'];
         }
 
