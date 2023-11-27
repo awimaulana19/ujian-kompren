@@ -10,10 +10,16 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class AuthController extends Controller
 {
+    public function pdf()
+    {
+        return view('Mahasiswa.SkPenilaian.skPDF');
+    }
+
     public function beranda()
     {
         return view('beranda');
     }
+
     public function halaman_login()
     {
         return view('login');
