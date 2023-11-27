@@ -21,6 +21,7 @@ use App\Http\Controllers\MahasiswaController;
 |
 */
 
+Route::get('/pdf', [AuthController::class, 'pdf']);
 Route::get('/', [AuthController::class, 'beranda']);
 
 Route::get('/login', [AuthController::class, 'halaman_login'])->name('login');
