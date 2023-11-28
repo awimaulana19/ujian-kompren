@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DosenController extends Controller
 {
@@ -55,8 +57,6 @@ class DosenController extends Controller
         return redirect('/admin/dosen');
     }
 
-
-
     public function destroy($id)
     {
         $user = User::find($id);
@@ -64,5 +64,112 @@ class DosenController extends Controller
         $user->delete();
         Alert::success('Success', 'Berhasil menghapus akun');
         return redirect('/admin/dosen');
+    }
+
+    public function pdf(Request $request)
+    {
+        $user = User::where('username', $request->nim_mahasiswa)->first();
+        $matkul = Matkul::where('id', $request->mata_kuliah_id)->first();
+        $originalData = json_decode($user->nilai, true);
+
+        $penguji = json_decode($user->penguji);
+
+        if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+            if ($originalData['nilai_penguji_1']['remidial']) {
+                $originalData['nilai_penguji_1']['nilai_ujian'] = $request->nilai_angka;
+            }
+            $originalData['nilai_penguji_1']['sk'] = $request->tanggal_sk;
+            $originalData['nilai_penguji_1']['keterangan'] = $request->keterangan;
+            $tanggal_sk = $originalData['nilai_penguji_1']['sk'];
+            $keterangan = $originalData['nilai_penguji_1']['keterangan'];
+        }
+        if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+            if ($originalData['nilai_penguji_2']['remidial']) {
+                $originalData['nilai_penguji_2']['nilai_ujian'] = $request->nilai_angka;
+            }
+            $originalData['nilai_penguji_2']['sk'] = $request->tanggal_sk;
+            $originalData['nilai_penguji_2']['keterangan'] = $request->keterangan;
+            $tanggal_sk = $originalData['nilai_penguji_2']['sk'];
+            $keterangan = $originalData['nilai_penguji_2']['keterangan'];
+        }
+        if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+            if ($originalData['nilai_penguji_3']['remidial']) {
+                $originalData['nilai_penguji_3']['nilai_ujian'] = $request->nilai_angka;
+            }
+            $originalData['nilai_penguji_3']['sk'] = $request->tanggal_sk;
+            $originalData['nilai_penguji_3']['keterangan'] = $request->keterangan;
+            $tanggal_sk = $originalData['nilai_penguji_3']['sk'];
+            $keterangan = $originalData['nilai_penguji_3']['keterangan'];
+        }
+
+        $updatedJson = json_encode($originalData);
+
+        $user->nilai = $updatedJson;
+        $user->update();
+
+        if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
+            $nilai_huruf = "A";
+        }
+        else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+            $nilai_huruf = "B";
+        }
+        else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+            $nilai_huruf = "C";
+        }
+        else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+            $nilai_huruf = "D";
+        }
+        else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+            $nilai_huruf = "E";
+        }
+        else {
+            $nilai_huruf = "Nilai tidak valid";
+        }
+        
+        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
+        $pdf->render();
+
+        Alert::success('Success', 'Berhasil mengirim surat penilaian');
+        
+        return $pdf->stream("Surat Penilaian {$user->nama}.pdf");
+    }
+
+    public function batal_kirim($id, $user_id)
+    {
+        $user = User::where('id',$user_id)->first();
+        $matkul = Matkul::where('id', $id)->first();
+        $originalData = json_decode($user->nilai, true);
+
+        $penguji = json_decode($user->penguji);
+
+        if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+            $originalData['nilai_penguji_1']['sk'] = null;
+            $originalData['nilai_penguji_1']['keterangan'] = null;
+            if ($originalData['nilai_penguji_1']['remidial']) {
+                $originalData['nilai_penguji_1']['nilai_ujian'] = $originalData['nilai_penguji_1']['nilai_remidial'];
+            }
+        }
+        if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+            $originalData['nilai_penguji_2']['sk'] = null;
+            $originalData['nilai_penguji_2']['keterangan'] = null;
+            if ($originalData['nilai_penguji_2']['remidial']) {
+                $originalData['nilai_penguji_2']['nilai_ujian'] = $originalData['nilai_penguji_2']['nilai_remidial'];
+            }
+        }
+        if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+            $originalData['nilai_penguji_3']['sk'] = null;
+            $originalData['nilai_penguji_3']['keterangan'] = null;
+            if ($originalData['nilai_penguji_3']['remidial']) {
+                $originalData['nilai_penguji_3']['nilai_ujian'] = $originalData['nilai_penguji_3']['nilai_remidial'];
+            }
+        }
+
+        $updatedJson = json_encode($originalData);
+
+        $user->nilai = $updatedJson;
+        $user->update();
+
+        Alert::success('Success', 'Berhasil membatalkan kirim nilai');
+        return redirect()->back();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Hasil;
 use App\Models\Matkul;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -170,5 +171,45 @@ class MahasiswaController extends Controller
 
         Alert::success('Success', 'Berhasil mengupdate data');
         return redirect()->back();
+    }
+
+    public function pdf(Request $request)
+    {
+        $user = Auth::user();
+        $matkul = Matkul::where('id', $request->mata_kuliah_id)->first();
+
+        $nilai = json_decode($user->nilai);
+        $penguji = json_decode($user->penguji);
+
+        if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_1->sk;
+            $keterangan = $nilai->nilai_penguji_1->keterangan;
+        }
+        if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_2->sk;
+            $keterangan = $nilai->nilai_penguji_2->keterangan;
+        }
+        if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_3->sk;
+            $keterangan = $nilai->nilai_penguji_3->keterangan;
+        }
+
+        if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
+            $nilai_huruf = "A";
+        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+            $nilai_huruf = "B";
+        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+            $nilai_huruf = "C";
+        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+            $nilai_huruf = "D";
+        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+            $nilai_huruf = "E";
+        } else {
+            $nilai_huruf = "Nilai tidak valid";
+        }
+
+        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
+        $pdf->render();
+        return $pdf->stream("Surat Penilaian.pdf");
     }
 }

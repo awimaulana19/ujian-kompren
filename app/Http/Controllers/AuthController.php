@@ -10,11 +10,6 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class AuthController extends Controller
 {
-    public function pdf()
-    {
-        return view('Mahasiswa.SkPenilaian.skPDF');
-    }
-
     public function beranda()
     {
         return view('beranda');
@@ -52,9 +47,9 @@ class AuthController extends Controller
             ]);
 
             $nilai = json_encode([
-                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
-                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
-                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0],
+                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
+                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
+                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
             ]);
 
             $regis = new User([

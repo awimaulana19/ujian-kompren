@@ -21,7 +21,6 @@ use App\Http\Controllers\MahasiswaController;
 |
 */
 
-Route::get('/pdf', [AuthController::class, 'pdf']);
 Route::get('/', [AuthController::class, 'beranda']);
 
 Route::get('/login', [AuthController::class, 'halaman_login'])->name('login');
@@ -76,6 +75,8 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
 
     Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen']);
     Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);
+    Route::post('/kirim-nilai/pdf', [DosenController::class, 'pdf']);
+    Route::get('/dosen/batal-kirim/{id}/{user_id}', [DosenController::class, 'batal_kirim']);
 });
 
 Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {
@@ -84,4 +85,5 @@ Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {
     Route::get('/mahasiswa/matkul/{id}', [SoalController::class, 'ujian_mahasiswa']);
     Route::get('/mahasiswa/soal/{id}', [SoalController::class, 'soal_mahasiswa'])->middleware('StartUjian');
     Route::post('/mahasiswa/soal/{id}/{user_id}', [SoalController::class, 'jawab_mahasiswa'])->middleware('StartUjian');
+    Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf']);
 });

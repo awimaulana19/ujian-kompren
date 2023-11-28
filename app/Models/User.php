@@ -24,6 +24,7 @@ class User extends Authenticatable
         'roles',
         'sk_kompren',
         'penguji',
+        'nilai',
         'matkul_pengujian',
         'is_verification',
     ];

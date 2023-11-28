@@ -78,38 +78,38 @@
         let counter = 0;
         const maxCount = 3;
 
-        // document.addEventListener("visibilitychange", function() {
-        //     if (document.visibilityState === 'hidden') {
-        //         counter++;
-        //         if (counter === maxCount) {
-        //             form.submit();
-        //         } else if (counter < maxCount) {
-        //             warningMessage.classList.add('alert', 'alert-danger');
-        //             warningMessage.textContent =
-        //                 'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
-        //             setTimeout(function() {
-        //                 warningMessage.classList.remove('alert', 'alert-danger');
-        //                 warningMessage.textContent = '';
-        //             }, 7000);
-        //         }
-        //     }
-        // });
+        document.addEventListener("visibilitychange", function() {
+            if (document.visibilityState === 'hidden') {
+                counter++;
+                if (counter === maxCount) {
+                    form.submit();
+                } else if (counter < maxCount) {
+                    warningMessage.classList.add('alert', 'alert-danger');
+                    warningMessage.textContent =
+                        'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
+                    setTimeout(function() {
+                        warningMessage.classList.remove('alert', 'alert-danger');
+                        warningMessage.textContent = '';
+                    }, 7000);
+                }
+            }
+        });
 
-        // let counter2 = 0;
+        let counter2 = 0;
 
-        // window.addEventListener('blur', function() {
-        //     counter2++;
-        //     if (counter2 === maxCount) {
-        //         form.submit();
-        //     } else if (counter2 < maxCount) {
-        //         warningMessage.classList.add('alert', 'alert-danger');
-        //         warningMessage.textContent =
-        //             'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
-        //         setTimeout(function() {
-        //             warningMessage.classList.remove('alert', 'alert-danger');
-        //             warningMessage.textContent = '';
-        //         }, 7000);
-        //     }
-        // });
+        window.addEventListener('blur', function() {
+            counter2++;
+            if (counter2 === maxCount) {
+                form.submit();
+            } else if (counter2 < maxCount) {
+                warningMessage.classList.add('alert', 'alert-danger');
+                warningMessage.textContent =
+                    'Anda telah melanggar aturan. Jika Anda melakukan pelanggaran berulang kali, jawaban akan tersubmit.';
+                setTimeout(function() {
+                    warningMessage.classList.remove('alert', 'alert-danger');
+                    warningMessage.textContent = '';
+                }, 7000);
+            }
+        });
     </script>
 @endsection

@@ -121,11 +121,11 @@
     </div>
     <div class="penguji">
         <h3 class="label">DOSEN PENGUJI</h3>
-        <h3 class="isi">: Adhy Rizaldy, S.Kom., M.Kom</h3>
+        <h3 class="isi">: {{ $request->dosen_penguji }}</h3>
     </div>
     <div class="penguji">
         <h3 class="label">MATA KULIAH</h3>
-        <h3 class="isi">: Rekayasa Perangkat Lunak</h3>
+        <h3 class="isi">: {{ $request->mata_kuliah }}</h3>
     </div>
 
 
@@ -144,10 +144,10 @@
         <tbody>
             <!-- Isi tabel sesuai kebutuhan -->
             <tr>
-                <td style="text-align: center">M.Rizki Madya / 6090012009</td>
-                <td style="text-align: center">A</td>
-                <td style="text-align: center">90</td>
-                <td style="text-align: center">Paraf</td>
+                <td style="text-align: center">{{ $request->nama_mahasiswa }} / {{ $request->nim_mahasiswa }}</td>
+                <td style="text-align: center">{{ $nilai_huruf }}</td>
+                <td style="text-align: center">{{ $request->nilai_angka }}</td>
+                <td style="text-align: center">{{ $keterangan }}</td>
             </tr>
             <!-- Tambahkan baris lain sesuai kebutuhan -->
         </tbody>
@@ -156,9 +156,9 @@
     <div class="row_ttd">
         <div class="col_ttd8"></div>
         <div class="col_ttd4">
-            <p>Romangpolong, ...........</p>
+            <p>Romangpolong, {{ $tanggal_sk }}</p>
             <p>Penguji,</p>
-            <p style="padding-top: 60px;">Adhy Rizaldy, S.Kom., M.Kom</p>
+            <p style="padding-top: 60px;">{{ $request->dosen_penguji }}</p>
         </div>
     </div>
 

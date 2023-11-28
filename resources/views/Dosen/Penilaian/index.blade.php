@@ -36,6 +36,7 @@
                                             $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
                                             $remidial = $data_nilai->nilai_penguji_1->remidial;
                                             $nilai_remidial = $data_nilai->nilai_penguji_1->nilai_remidial;
+                                            $sk = $data_nilai->nilai_penguji_1->sk;
                                         }
                                         if ($data_penguji->penguji_2->user_id == auth()->user()->id && $data_penguji->penguji_2->matkul_id == $matkul_penilaian->id) {
                                             $jumlah_benar = $data_nilai->nilai_penguji_2->jumlah_benar;
@@ -43,6 +44,7 @@
                                             $nilai_asli = $data_nilai->nilai_penguji_2->nilai_ujian;
                                             $remidial = $data_nilai->nilai_penguji_2->remidial;
                                             $nilai_remidial = $data_nilai->nilai_penguji_2->nilai_remidial;
+                                            $sk = $data_nilai->nilai_penguji_2->sk;
                                         }
                                         if ($data_penguji->penguji_3->user_id == auth()->user()->id && $data_penguji->penguji_3->matkul_id == $matkul_penilaian->id) {
                                             $jumlah_benar = $data_nilai->nilai_penguji_3->jumlah_benar;
@@ -50,6 +52,7 @@
                                             $nilai_asli = $data_nilai->nilai_penguji_3->nilai_ujian;
                                             $remidial = $data_nilai->nilai_penguji_3->remidial;
                                             $nilai_remidial = $data_nilai->nilai_penguji_3->nilai_remidial;
+                                            $sk = $data_nilai->nilai_penguji_3->sk;
                                         }
                                     @endphp
                                     @if ($jumlah_benar == 0 && $jumlah_salah == 0)
@@ -81,7 +84,14 @@
                                                 <a class="btn btn-sm btn-danger me-1"
                                                     href="/dosen/remidial/{{ $matkul_penilaian->id }}/{{ $item->id }}">Remidial</a>
                                             @endif
-                                            <a class="btn btn-sm btn-success" href="#">Kirim Nilai</a>
+                                            @if ($sk)
+                                                <a class="btn btn-sm btn-warning"
+                                                    href="/dosen/batal-kirim/{{ $matkul_penilaian->id }}/{{ $item->id }}">Batal
+                                                    Kirim</a>
+                                            @else
+                                                <button class="btn btn-sm btn-success" type="button" data-bs-toggle="modal"
+                                                    data-bs-target="#{{ 'kirim' . $item->id }}">Kirim Nilai</button>
+                                            @endif
                                         </td>
                                         {{-- modal --}}
                                         <div class="modal fade" id="{{ 'lihat' . $item->id }}" tabindex="-1"
@@ -97,8 +107,7 @@
                                                     <div class="modal-body">
                                                         <form>
                                                             <div class="mb-3">
-                                                                <label class="form-label mb-2">Nilai Sebelum
-                                                                    Remidial</label>
+                                                                <label class="form-label mb-2">Nilai Akhir</label>
                                                                 <input class="form-control" type="text"
                                                                     value="{{ $nilai_asli }}" disabled>
                                                             </div>
@@ -134,6 +143,62 @@
                                             </div>
                                         </div>
                                         {{-- modal --}}
+                                        {{-- modal --}}
+                                        <div class="modal fade" id="{{ 'kirim' . $item->id }}" tabindex="-1"
+                                            aria-labelledby="{{ 'kirim' . $item->id }}Label" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="{{ 'kirim' . $item->id }}Label">
+                                                            Kirim Nilai</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="/kirim-nilai/pdf" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="dosen_penguji"
+                                                                value="{{ auth()->user()->nama }}">
+                                                            <input type="hidden" name="mata_kuliah_id"
+                                                                value="{{ $matkul_penilaian->id }}">
+                                                            <input type="hidden" name="mata_kuliah"
+                                                                value="{{ $matkul_penilaian->nama }}">
+                                                            <input type="hidden" name="nama_mahasiswa"
+                                                                value="{{ $item->nama }}">
+                                                            <input type="hidden" name="nim_mahasiswa"
+                                                                value="{{ $item->username }}">
+                                                            @if ($remidial)
+                                                                <div class="mb-3">
+                                                                    <label class="form-label mb-2">Nilai Akhir (Konversi
+                                                                        Remidial)</label>
+                                                                    <input class="form-control" type="number"
+                                                                        name="nilai_angka" value="{{ $nilai_remidial }}">
+                                                                </div>
+                                                            @else
+                                                                <input type="hidden" name="nilai_angka"
+                                                                    value="{{ $nilai_asli }}">
+                                                            @endif
+                                                            <div class="mb-3">
+                                                                <label class="form-label mb-2">Keterangan Surat</label>
+                                                                <textarea class="form-control" name="keterangan" cols="30" rows="5"></textarea>
+                                                            </div>
+                                                            @php
+                                                                \Carbon\Carbon::setLocale('id');
+                                                            @endphp
+                                                            <input type="hidden" name="tanggal_sk"
+                                                                value="{{ \Carbon\Carbon::now()->isoFormat('D MMMM YYYY') }}">
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary"
+                                                            onclick="reloadPageAfterDelay()">Kirim</button>
+                                                    </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{-- modal --}}
                                     @endif
                                 </tr>
                             @endforeach
@@ -143,4 +208,12 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function reloadPageAfterDelay() {
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        }
+    </script>
 @endsection
