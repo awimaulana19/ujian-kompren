@@ -150,7 +150,31 @@ class SoalController extends Controller
     // Fungsi untuk mengacak soal dengan memakai rumus LCM
     public function acak($id)
     {
-        $soal = Soal::where('matkul_id', $id)->get();
+        $user = Auth::user();
+        $matkul = Matkul::where('id', $id)->first();
+
+        $data_penguji = json_decode($user->penguji);
+        $data_nilai = json_decode($user->nilai);
+
+        if ($data_penguji->penguji_1->user_id == $matkul->user_id && $data_penguji->penguji_1->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_1->remidial;
+        }
+        if ($data_penguji->penguji_2->user_id == $matkul->user_id && $data_penguji->penguji_2->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_2->remidial;
+        }
+        if ($data_penguji->penguji_3->user_id == $matkul->user_id && $data_penguji->penguji_3->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_3->remidial;
+        }
+
+        if ($remidial) {
+            $soal = Soal::where('matkul_id', $id)
+                ->whereIn('tingkat', ['Menengah', 'Mudah'])
+                ->get();
+        } else {
+            $soal = Soal::where('matkul_id', $id)
+                ->whereIn('tingkat', ['Sulit', 'Menengah'])
+                ->get();
+        }
 
         // Seed untuk generator (Anda dapat menggunakan nilai awal yang berbeda untuk mendapatkan hasil acak yang berbeda)
         $seed = time();
@@ -254,7 +278,7 @@ class SoalController extends Controller
                 $originalData['nilai_penguji_1']['jumlah_salah'] = $jumlahSalah;
                 if ($originalData['nilai_penguji_1']['remidial']) {
                     $originalData['nilai_penguji_1']['nilai_remidial'] = $nilai_ujian;
-                }else{
+                } else {
                     $originalData['nilai_penguji_1']['nilai_ujian'] = $nilai_ujian;
                 }
             }
@@ -263,7 +287,7 @@ class SoalController extends Controller
                 $originalData['nilai_penguji_2']['jumlah_salah'] = $jumlahSalah;
                 if ($originalData['nilai_penguji_2']['remidial']) {
                     $originalData['nilai_penguji_2']['nilai_remidial'] = $nilai_ujian;
-                }else{
+                } else {
                     $originalData['nilai_penguji_2']['nilai_ujian'] = $nilai_ujian;
                 }
             }
@@ -272,7 +296,7 @@ class SoalController extends Controller
                 $originalData['nilai_penguji_3']['jumlah_salah'] = $jumlahSalah;
                 if ($originalData['nilai_penguji_3']['remidial']) {
                     $originalData['nilai_penguji_3']['nilai_remidial'] = $nilai_ujian;
-                }else{
+                } else {
                     $originalData['nilai_penguji_3']['nilai_ujian'] = $nilai_ujian;
                 }
             }
