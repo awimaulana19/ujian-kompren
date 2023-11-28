@@ -8,24 +8,22 @@
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
-            padding: 0px 100px 100px 100px;
         }
 
         .header {
             display: flex;
             align-items: center;
-            padding: 20px 20px 0px 20px;
         }
 
         .logo {
-            width: 14%;
+            width: 20%;
             /* Sesuaikan lebar logo */
         }
 
         .kampus {
-            width: 86%;
+            width: 80%;
             text-align: center;
-            padding: 0px 20px;
+            /* padding: 0px 20px; */
         }
 
         .penguji {
@@ -33,12 +31,12 @@
         }
 
         .penguji .label {
-            width: 25%;
+            width: 50%;
             margin-bottom: 0px;
         }
 
         .penguji .isi {
-            width: 75%;
+            width: 50%;
             margin-bottom: 0px;
         }
 
@@ -57,7 +55,6 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 30px 0px;
         }
 
         table,
@@ -84,12 +81,12 @@
         }
 
         .col_ttd8 {
-            width: 76%;
+            width: 60%;
         }
 
         .col_ttd4 {
-            width: 24%;
-            margin-top: 80px;
+            width: 40%;
+            margin-top: 60px;
             margin-left: auto;
             font-weight: bold;
         }
@@ -98,35 +95,43 @@
 
 <body>
 
-    <div class="header">
-        <div class="logo">
-            <!-- Ganti dengan tag img untuk logo -->
-            <img width="100%" src="{{ asset('assets2/img/logo_uin.png') }}" alt="">
-        </div>
-        <div class="kampus">
-            <h2 style="margin: 0;">KEMENTERIAN AGAMA R.I</h2>
-            <h2 style="margin: 0;">UNIVERSITAS ISLAM NEGERI ALAUDDIN MAKASSAR</h2>
-            <h2 style="margin: 0;">FAKULTAS SAINS DAN TEKNOLOGI</h2>
-            <h2 style="margin: 0;">JURUSAN SISTEM INFORMASI</h2>
-            <p style="margin: 0;">Kampus I : Jln. Sultan Alauddin No. 63 Telp. 864924 (Fax 864923) Makassar</p>
-            <p style="margin: 0;">Kampus II : Jln. HM. Yasin Limpo No.36 Romang Polong - Gowa Telp. (0411) 8417879</p>
-        </div>
-    </div>
+    <table width="100%" style="border:0;">
+        <tr style="border:0;">
+            <td width="16%" style="border:0;">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/assets2/img/logo_uin.png'))) }}"
+                    width="100%">
+            </td>
+            <td width="84%" style="text-align: center; border:0;">
+                <h4 style="margin: 0;">KEMENTERIAN AGAMA R.I</h4>
+                <h4 style="margin: 0;">UNIVERSITAS ISLAM NEGERI ALAUDDIN MAKASSAR</h4>
+                <h4 style="margin: 0;">FAKULTAS SAINS DAN TEKNOLOGI</h4>
+                <h4 style="margin: 0;">JURUSAN SISTEM INFORMASI</h4>
+                <p style="margin: 0;">Kampus I : Jln. Sultan Alauddin No. 63 Telp. 864924 (Fax 864923) Makassar</p>
+                <p style="margin: 0;">Kampus II : Jln. HM. Yasin Limpo No.36 Romang Polong - Gowa Telp. (0411) 8417879
+                </p>
+            </td>
+        </tr>
+    </table>
 
     <div class="garis"></div>
 
     <div class="keterangan">
-        <h2>DAFTAR NILAI</h2>
-        <h2 style="margin-bottom: 60px;">UJIAN AKHIR PROGRAM STUDI / KOMPREHENSHIP</h2>
+        <h4>DAFTAR NILAI</h4>
+        <h4 style="margin-bottom: 30px;">UJIAN AKHIR PROGRAM STUDI / KOMPREHENSHIP</h4>
     </div>
-    <div class="penguji">
-        <h3 class="label">DOSEN PENGUJI</h3>
-        <h3 class="isi">: {{ $request->dosen_penguji }}</h3>
-    </div>
-    <div class="penguji">
-        <h3 class="label">MATA KULIAH</h3>
-        <h3 class="isi">: {{ $request->mata_kuliah }}</h3>
-    </div>
+
+    <table width="100%" style="border:0;">
+        <tr style="border:0;">
+            <td width="30%" style="border:0;">
+                <h5 class="label">DOSEN PENGUJI</h5>
+                <h5 class="label">MATA KULIAH</h5>
+            </td>
+            <td width="70%" style="border:0;">
+                <h5 class="isi">: {{ $request->dosen_penguji }}</h5>
+                <h5 class="isi">: {{ $request->mata_kuliah }}</h5>
+            </td>
+        </tr>
+    </table>
 
 
     <table>
@@ -158,7 +163,7 @@
         <div class="col_ttd4">
             <p>Romangpolong, {{ $tanggal_sk }}</p>
             <p>Penguji,</p>
-            <p style="padding-top: 60px;">{{ $request->dosen_penguji }}</p>
+            <p style="padding-top: 80px;">{{ $request->dosen_penguji }}</p>
         </div>
     </div>
 

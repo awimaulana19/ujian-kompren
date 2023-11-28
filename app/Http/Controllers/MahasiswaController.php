@@ -209,7 +209,6 @@ class MahasiswaController extends Controller
         }
 
         $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
-        $pdf->render();
-        return $pdf->stream("Surat Penilaian.pdf");
+        return $pdf->download("Surat Penilaian.pdf");
     }
 }
