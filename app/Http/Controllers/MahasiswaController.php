@@ -156,12 +156,15 @@ class MahasiswaController extends Controller
 
         if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
             $originalNilai['nilai_penguji_1']['remidial'] = true;
+            $originalNilai['nilai_penguji_1']['nilai_remidial'] = null;
         }
         if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
             $originalNilai['nilai_penguji_2']['remidial'] = true;
+            $originalNilai['nilai_penguji_2']['nilai_remidial'] = null;
         }
         if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
-            $originalNilai['nilai_penguji_2']['remidial'] = true;
+            $originalNilai['nilai_penguji_3']['remidial'] = true;
+            $originalNilai['nilai_penguji_3']['nilai_remidial'] = null;
         }
 
         $updatedJson = json_encode($originalNilai);
