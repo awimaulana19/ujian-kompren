@@ -17,9 +17,18 @@ class OnlyDosen
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::user()->roles != 'dosen'){
-            return redirect('/login');
+        if (request()->is('api*')) {
+            if ($request->user()->roles != 'dosen') {
+                return redirect('/api/login-gagal');
+            }
+
+            return $next($request);
+        } else {
+            if (Auth::user()->roles != 'dosen') {
+                return redirect('/login');
+            }
+
+            return $next($request);
         }
-        return $next($request);
     }
 }

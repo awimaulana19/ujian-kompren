@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class SoalController extends Controller
 {
@@ -310,5 +311,151 @@ class SoalController extends Controller
         }
 
         return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Anda Sudah Mengerjakan Ujian');
+    }
+
+    public function soal_matkul_api($id)
+    {
+        $matkul = Matkul::where('id', $id)->with('soal')->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        foreach ($matkul->soal as $soal) {
+            if ($soal->gambar_soal) {
+                $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $matkul
+        ]);
+    }
+
+    public function store_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'matkul_id' => 'required',
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store Soal Gagal',
+                'data' => $validator->errors()
+            ]);
+        }
+
+        $soal = new Soal();
+        $soal->matkul_id = $request->matkul_id;
+        $soal->soal = $request->soal;
+        $soal->tingkat = $request->tingkat;
+        if ($request->file('gambar_soal')) {
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->save();
+
+        $jawabanA = new Jawaban();
+        $jawabanA->soal_id = $soal->id;
+        $jawabanA->save();
+        $jawabanB = new Jawaban();
+        $jawabanB->soal_id = $soal->id;
+        $jawabanB->save();
+        $jawabanC = new Jawaban();
+        $jawabanC->soal_id = $soal->id;
+        $jawabanC->save();
+        $jawabanD = new Jawaban();
+        $jawabanD->soal_id = $soal->id;
+        $jawabanD->save();
+        $jawabanE = new Jawaban();
+        $jawabanE->soal_id = $soal->id;
+        $jawabanE->save();
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Store Soal Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function update_api(Request $request, $id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Soal Gagal',
+                'data' => $validator->errors()
+            ]);
+        }
+
+        $soal->soal = $request->soal;
+        $soal->tingkat = $request->tingkat;
+        if ($request->file('gambar_soal')) {
+            if ($request->gambarSoalLama) {
+                Storage::delete($request->gambarSoalLama);
+            }
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->update();
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Soal Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function destroy_api($id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Delete Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $soal->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Delete Soal Berhasil',
+            'data' => null
+        ]);
     }
 }
