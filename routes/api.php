@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SoalController;
+use App\Http\Controllers\JawabanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,12 +31,13 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
 
     Route::get('/dosen/matkul/{id}', [SoalController::class, 'soal_matkul_api']);
     Route::post('/dosen/soal', [SoalController::class, 'store_api']);
+    Route::get('/dosen/soal/edit/{id}', [SoalController::class, 'edit_api']);
     Route::post('/dosen/soal/edit/{id}', [SoalController::class, 'update_api']);
     Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy_api']);
-    // Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit']);
-    // Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
-    // Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish']);
-    // Route::get('/dosen/end/{id}', [SoalController::class, 'set_end']);
+    Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish_api']);
+    Route::get('/dosen/end/{id}', [SoalController::class, 'set_end_api']);
+    Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit_api']);
+    Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update_api']);
 
     // Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen']);
     // Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian']);

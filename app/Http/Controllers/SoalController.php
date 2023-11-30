@@ -327,7 +327,7 @@ class SoalController extends Controller
 
         foreach ($matkul->soal as $soal) {
             if ($soal->gambar_soal) {
-                $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+                $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
             }
         }
 
@@ -381,12 +381,35 @@ class SoalController extends Controller
         $jawabanE->save();
 
         if ($soal->gambar_soal) {
-            $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Store Soal Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function edit_api($id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
             'data' => $soal
         ]);
     }
@@ -428,7 +451,7 @@ class SoalController extends Controller
         $soal->update();
 
         if ($soal->gambar_soal) {
-            $soal->gambar_soal = url('/').'/storage/'.$soal->gambar_soal;
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
         }
 
         return response()->json([
@@ -456,6 +479,65 @@ class SoalController extends Controller
             'success' => true,
             'message' => 'Delete Soal Berhasil',
             'data' => null
+        ]);
+    }
+
+    public function set_finish_api(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'finish_date' => 'required|date',
+            'finish_time' => 'required|date_format:H:i',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Waktu Mulai Ujian Gagal',
+                'data' => $validator->errors()
+            ]);
+        }
+
+        $finish = Matkul::where('id', $id)->first();
+
+        if (!$finish) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $finish->finish_date = $request->finish_date;
+        $finish->finish_time = $request->finish_time;
+        $finish->update();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Waktu Mulai Ujian Berhasil',
+            'data' => $finish
+        ]);
+    }
+
+    public function set_end_api($id)
+    {
+        $finish = Matkul::where('id', $id)->first();
+
+        if (!$finish) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akhiri Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $finish->finish_date = null;
+        $finish->finish_time = null;
+        $finish->update();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akhiri Waktu Mulai Ujian Berhasil',
+            'data' => $finish
         ]);
     }
 }
