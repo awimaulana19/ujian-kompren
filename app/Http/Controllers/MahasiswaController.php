@@ -214,4 +214,90 @@ class MahasiswaController extends Controller
         $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
         return $pdf->download("Surat Penilaian.pdf");
     }
+
+    public function pengujian_dosen_api($id)
+    {
+        $matkul_pengujian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_pengujian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_pengujian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $data['mahasiswa'] = $mahasiswa;
+        $data['matkul_pengujian'] = $matkul_pengujian;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function dapat_ujian_api($id, $user_id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+        $user = User::where('id', $user_id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ]);
+        }
+
+        $dosen = Auth::user();
+
+        $originalData = json_decode($user->penguji, true);
+
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
+            $originalData['penguji_1']['dapat_ujian'] = !$originalData['penguji_1']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
+            $originalData['penguji_2']['dapat_ujian'] = !$originalData['penguji_2']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
+            $originalData['penguji_3']['dapat_ujian'] = !$originalData['penguji_3']['dapat_ujian'];
+        }
+
+        $updatedJson = json_encode($originalData);
+
+        $user->penguji = $updatedJson;
+        $user->update();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Data Berhasil',
+            'data' => $user
+        ]);
+    }
 }

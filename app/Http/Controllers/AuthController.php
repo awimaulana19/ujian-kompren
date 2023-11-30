@@ -253,6 +253,17 @@ class AuthController extends Controller
         ]);
     }
 
+    public function get_matkul_api()
+    {
+        $data = auth()->user()->matkul;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
     public function dashboard_dosen_api()
     {
         $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();

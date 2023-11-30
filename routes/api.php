@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\JawabanController;
+use App\Http\Controllers\MahasiswaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,7 @@ Route::get('/login-gagal', [AuthController::class, 'login_gagal'])->name('login_
 Route::get('/logout', [AuthController::class, 'logout_api'])->middleware('auth:sanctum');
 
 Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
+    Route::get('/get-matkul-dosen', [AuthController::class, 'get_matkul_api']);
     Route::get('/dashboard-dosen', [AuthController::class, 'dashboard_dosen_api']);
 
     Route::get('/dosen/matkul/{id}', [SoalController::class, 'soal_matkul_api']);
@@ -39,8 +41,8 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit_api']);
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update_api']);
 
-    // Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen']);
-    // Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian']);
+    Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen_api']);
+    Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian_api']);
 
     // Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen']);
     // Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);
