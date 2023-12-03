@@ -17,9 +17,18 @@ class OnlyMahasiswa
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::user()->roles != 'mahasiswa'){
-            return redirect('/login');
+        if (request()->is('api*')) {
+            if ($request->user()->roles != 'mahasiswa') {
+                return redirect('/api/login-gagal');
+            }
+
+            return $next($request);
+        } else {
+            if (Auth::user()->roles != 'mahasiswa') {
+                return redirect('/login');
+            }
+
+            return $next($request);
         }
-        return $next($request);
     }
 }

@@ -24,8 +24,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register_api']);
 Route::post('/login', [AuthController::class, 'login_api']);
-Route::get('/login-gagal', [AuthController::class, 'login_gagal'])->name('login_gagal');
 Route::get('/logout', [AuthController::class, 'logout_api'])->middleware('auth:sanctum');
+
+Route::get('/login-gagal', [AuthController::class, 'login_gagal'])->name('login_gagal');
+Route::get('/start-gagal', [SoalController::class, 'start_gagal'])->name('start_gagal');
 
 Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     Route::get('/get-matkul-dosen', [AuthController::class, 'get_matkul_api']);
@@ -48,4 +50,14 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     // Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);
     // Route::post('/kirim-nilai/pdf', [DosenController::class, 'pdf']);
     // Route::get('/dosen/batal-kirim/{id}/{user_id}', [DosenController::class, 'batal_kirim']);
+});
+
+Route::group(['middleware' => ['auth:sanctum', 'OnlyMahasiswa']], function () {
+    Route::get('/get-matkul-mahasiswa', [AuthController::class, 'get_pengujian_api']);
+    Route::get('/dashboard-mahasiswa', [AuthController::class, 'dashboard_mahasiswa_api']);
+
+    Route::get('/mahasiswa/matkul/{id}', [SoalController::class, 'ujian_mahasiswa_api']);
+    Route::get('/mahasiswa/soal/{id}', [SoalController::class, 'soal_mahasiswa_api'])->middleware('StartUjian');
+    Route::post('/mahasiswa/soal/{id}/{user_id}', [SoalController::class, 'jawab_mahasiswa_api'])->middleware('StartUjian');
+    // Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf']);
 });

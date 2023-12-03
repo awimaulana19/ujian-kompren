@@ -244,6 +244,12 @@ class MahasiswaController extends Controller
             }
         }
 
+        foreach ($mahasiswa as $item) {
+            if ($item->sk_kompren) {
+                $item->sk_kompren = url('/') . '/storage/skKompren/' . $item->sk_kompren;
+            }
+        }
+
         $data['mahasiswa'] = $mahasiswa;
         $data['matkul_pengujian'] = $matkul_pengujian;
 

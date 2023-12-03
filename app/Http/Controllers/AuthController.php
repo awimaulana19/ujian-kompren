@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Soal;
 use App\Models\User;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -35,7 +36,7 @@ class AuthController extends Controller
 
         if ($request->has('sk_kompren')) {
             $file = $request->file('sk_kompren');
-            $nama_file = time() . "_" . $file->getClientOriginalName();
+            $nama_file = time() . "_SK_" . $request->username;
 
             // Simpan file ke direktori storage
             $file->storeAs('skKompren', $nama_file);
@@ -90,11 +91,7 @@ class AuthController extends Controller
 
     public function dashboard_mahasiswa()
     {
-        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
-        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
-        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
-
-        return view('Mahasiswa.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
+        return view('Mahasiswa.Dashboard.dashboard');
     }
 
     public function login_action(Request $request)
@@ -146,8 +143,8 @@ class AuthController extends Controller
 
         if ($request->has('sk_kompren')) {
             $file = $request->file('sk_kompren');
-            $nama_file = time() . "_" . $file->getClientOriginalName();
-            
+            $nama_file = time() . "_SK_" . $request->username;
+
             $file->storeAs('skKompren', $nama_file);
 
             $hashedPassword = bcrypt($request->password);
@@ -273,6 +270,69 @@ class AuthController extends Controller
         $data['soal_mudah'] = $soal_mudah;
         $data['soal_menengah'] = $soal_menengah;
         $data['soal_sulit'] = $soal_sulit;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function get_pengujian_api()
+    {
+        $user = Auth::user();
+
+        $penguji = json_decode($user->penguji, true);
+
+        $data_lengkap_penguji = [];
+
+        foreach ($penguji as $key => $value) {
+            $data_user = User::find($value['user_id']);
+
+            $matkul_user = Matkul::find($value['matkul_id']);
+
+            $data_lengkap_penguji[$key] = [
+                'user_id' => $value['user_id'],
+                'nama' => $data_user->nama,
+                'matkul_id' => $value['matkul_id'],
+                'matkul_nama' => $matkul_user->nama,
+            ];
+        }
+
+        $penguji = $data_lengkap_penguji;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $penguji
+        ]);
+    }
+
+    public function dashboard_mahasiswa_api()
+    {
+        $user = Auth::user();
+
+        $penguji = json_decode($user->penguji, true);
+
+        $data_lengkap_penguji = [];
+
+        foreach ($penguji as $key => $value) {
+            $data_user = User::find($value['user_id']);
+
+            $matkul_user = Matkul::find($value['matkul_id']);
+
+            $data_lengkap_penguji[$key] = [
+                'user_id' => $value['user_id'],
+                'nama' => $data_user->nama,
+                'matkul_id' => $value['matkul_id'],
+                'matkul_nama' => $matkul_user->nama,
+            ];
+        }
+
+        $penguji = $data_lengkap_penguji;
+
+        $data['user'] = $user;
+        $data['penguji'] = $penguji;
 
         return response()->json([
             'success' => true,
