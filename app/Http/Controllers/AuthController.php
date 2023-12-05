@@ -83,10 +83,28 @@ class AuthController extends Controller
 
     public function dashboard_dosen()
     {
-        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
-        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
-        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
-        return view('Dosen.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
+        $jumlah_matkul = Matkul::where('user_id', auth()->user()->id)->count();
+
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $jumlah_mahasiswa = count($mahasiswa);
+
+        return view('Dosen.Dashboard.dashboard', compact('jumlah_matkul', 'jumlah_mahasiswa'));
     }
 
     public function dashboard_mahasiswa()
@@ -263,13 +281,29 @@ class AuthController extends Controller
 
     public function dashboard_dosen_api()
     {
-        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
-        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
-        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
+        $jumlah_matkul = Matkul::where('user_id', auth()->user()->id)->count();
 
-        $data['soal_mudah'] = $soal_mudah;
-        $data['soal_menengah'] = $soal_menengah;
-        $data['soal_sulit'] = $soal_sulit;
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $jumlah_mahasiswa = count($mahasiswa);
+
+        $data['jumlah_matkul'] = $jumlah_matkul;
+        $data['jumlah_mahasiswa'] = $jumlah_mahasiswa;
 
         return response()->json([
             'success' => true,
