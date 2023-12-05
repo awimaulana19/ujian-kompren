@@ -35,7 +35,7 @@
     @if ($sk)
         <div class="card p-4">
             <div class="d-flex flex-column justify-content-center align-items-center" style="margin: 18% 0">
-                <h2 class="text-center">Cetak Surat Penilaian</h2>
+                <h2 class="text-center">Download Surat Penilaian</h2>
                 <form action="/cetak/pdf" method="POST">
                     @csrf
                     <input type="hidden" name="dosen_penguji" value="{{ $matkul->user->nama }}">
@@ -44,11 +44,7 @@
                     <input type="hidden" name="nama_mahasiswa" value="{{ auth()->user()->nama }}">
                     <input type="hidden" name="nim_mahasiswa" value="{{ auth()->user()->username }}">
                     <input type="hidden" name="nilai_angka" value="{{ $nilai_asli }}">
-                    @php
-                        \Carbon\Carbon::setLocale('id');
-                    @endphp
-                    <input type="hidden" name="tanggal_sk" value="{{ \Carbon\Carbon::now()->isoFormat('D MMMM YYYY') }}">
-                    <button type="submit" class="btn btn-primary mt-2">Cetak</button>
+                    <button type="submit" class="btn btn-primary mt-2">Download</button>
                 </form>
             </div>
         </div>

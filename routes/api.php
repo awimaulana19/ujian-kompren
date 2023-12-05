@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SoalController;
+use App\Http\Controllers\DosenController;
 use App\Http\Controllers\JawabanController;
 use App\Http\Controllers\MahasiswaController;
 
@@ -46,10 +47,11 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen_api']);
     Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian_api']);
 
-    // Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen']);
-    // Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);
-    // Route::post('/kirim-nilai/pdf', [DosenController::class, 'pdf']);
-    // Route::get('/dosen/batal-kirim/{id}/{user_id}', [DosenController::class, 'batal_kirim']);
+    Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen_api']);
+    Route::get('/dosen/nilai/{id}/{user_id}', [MahasiswaController::class, 'nilai_mahasiswa_api']);
+    Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial_api']);
+    Route::post('/kirim-nilai/pdf', [DosenController::class, 'pdf_api']);
+    Route::get('/dosen/batal-kirim/{id}/{user_id}', [DosenController::class, 'batal_kirim_api']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'OnlyMahasiswa']], function () {
@@ -58,6 +60,6 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyMahasiswa']], function () {
 
     Route::get('/mahasiswa/matkul/{id}', [SoalController::class, 'ujian_mahasiswa_api']);
     Route::get('/mahasiswa/soal/{id}', [SoalController::class, 'soal_mahasiswa_api'])->middleware('StartUjian');
-    Route::post('/mahasiswa/soal/{id}/{user_id}', [SoalController::class, 'jawab_mahasiswa_api'])->middleware('StartUjian');
-    // Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf']);
+    Route::post('/mahasiswa/soal/{id}', [SoalController::class, 'jawab_mahasiswa_api'])->middleware('StartUjian');
+    Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf_api']);
 });

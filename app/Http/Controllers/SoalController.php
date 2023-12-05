@@ -552,7 +552,8 @@ class SoalController extends Controller
 
     public function ujian_mahasiswa_api($id)
     {
-        $matkul = Matkul::where('id', $id)->first();
+        $mahasiswa = Auth::user();
+        $matkul = Matkul::where('id', $id)->with('user')->first();
 
         if (!$matkul) {
             return response()->json([
@@ -562,8 +563,8 @@ class SoalController extends Controller
             ], 404);
         }
 
-        $data_penguji = json_decode(auth()->user()->penguji);
-        $data_nilai = json_decode(auth()->user()->nilai);
+        $data_penguji = json_decode($mahasiswa->penguji);
+        $data_nilai = json_decode($mahasiswa->nilai);
 
         if ($data_penguji->penguji_1->user_id == $matkul->user_id && $data_penguji->penguji_1->matkul_id == $matkul->id) {
             $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
@@ -590,6 +591,7 @@ class SoalController extends Controller
             $sk = $data_nilai->nilai_penguji_3->sk;
         }
 
+        $data['mahasiswa'] = $mahasiswa;
         $data['matkul'] = $matkul;
         $data['nilai_asli'] = $nilai_asli;
         $data['jumlah_benar'] = $jumlah_benar;
@@ -647,7 +649,7 @@ class SoalController extends Controller
         ], 404);
     }
 
-    public function jawab_mahasiswa_api(Request $request, $id, $user_id)
+    public function jawab_mahasiswa_api(Request $request, $id)
     {
         $matkul = Matkul::where('id', $id)->first();
 
@@ -659,7 +661,7 @@ class SoalController extends Controller
             ], 404);
         }
 
-        $user = User::where('id', $user_id)->first();
+        $user = User::where('id', $request->user_id)->first();
 
         if (!$user) {
             return response()->json([
@@ -669,7 +671,15 @@ class SoalController extends Controller
             ], 404);
         }
 
-        $hasil = Hasil::where('user_id', $user_id)->where('matkul_id', $id)->get();
+        if (!$user->penguji) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submit Jawaban Gagal, Id User Bukan Mahasiswa',
+                'data' => null
+            ], 404);
+        }
+
+        $hasil = Hasil::where('user_id', $request->user_id)->where('matkul_id', $id)->get();
         if ($hasil->isEmpty()) {
             $soal = Soal::where('matkul_id', $matkul->id)->get();
 
