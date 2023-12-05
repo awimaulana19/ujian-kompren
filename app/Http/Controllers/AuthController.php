@@ -138,7 +138,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Pendaftaran Gagal',
                 'data' => $validator->errors()
-            ]);
+            ], 404);
         }
 
         if ($request->has('sk_kompren')) {
@@ -197,7 +197,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Login Gagal',
                 'data' => $validator->errors()
-            ]);
+            ], 404);
         }
 
         $user = User::where('username', $request->username)->first();
@@ -207,7 +207,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Email atau Password salah',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         if (!$user->is_verification) {
@@ -215,7 +215,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Akun Anda Belum Di Verifikasi Oleh Admin',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $data['token'] = $user->createToken('auth_token')->plainTextToken;
@@ -236,7 +236,7 @@ class AuthController extends Controller
             'success' => false,
             'message' => 'Token Tidak Valid',
             'data' => null
-        ]);
+        ], 404);
     }
 
     public function logout_api(Request $request)

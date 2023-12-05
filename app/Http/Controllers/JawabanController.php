@@ -127,7 +127,7 @@ class JawabanController extends Controller
                 'success' => false,
                 'message' => 'Get Data Gagal, Id Soal Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $jawaban = Jawaban::where('soal_id', $id)->get();
@@ -195,7 +195,7 @@ class JawabanController extends Controller
                 'success' => false,
                 'message' => 'Update Data Gagal, Id Soal Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $jawaban = Jawaban::where('soal_id', $id)->get();

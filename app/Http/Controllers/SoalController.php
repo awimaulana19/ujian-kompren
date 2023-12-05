@@ -319,7 +319,7 @@ class SoalController extends Controller
             'success' => false,
             'message' => 'Anda Belum Diizinkan Untuk Ujian',
             'data' => null
-        ]);
+        ], 404);
     }
 
     public function soal_matkul_api($id)
@@ -331,7 +331,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         foreach ($matkul->soal as $soal) {
@@ -361,7 +361,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Store Soal Gagal',
                 'data' => $validator->errors()
-            ]);
+            ], 404);
         }
 
         $soal = new Soal();
@@ -409,7 +409,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Get Data Gagal, Id Soal Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         if ($soal->gambar_soal) {
@@ -432,7 +432,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Update Data Gagal, Id Soal Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -446,7 +446,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Update Soal Gagal',
                 'data' => $validator->errors()
-            ]);
+            ], 404);
         }
 
         $soal->soal = $request->soal;
@@ -479,7 +479,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Delete Data Gagal, Id Soal Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $soal->delete();
@@ -503,7 +503,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Update Waktu Mulai Ujian Gagal',
                 'data' => $validator->errors()
-            ]);
+            ], 404);
         }
 
         $finish = Matkul::where('id', $id)->first();
@@ -513,7 +513,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Update Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $finish->finish_date = $request->finish_date;
@@ -536,7 +536,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Akhiri Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $finish->finish_date = null;
@@ -559,7 +559,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $data_penguji = json_decode(auth()->user()->penguji);
@@ -644,7 +644,7 @@ class SoalController extends Controller
             'success' => false,
             'message' => 'Get Data Gagal, Anda Sudah Mengerjakan Ujian',
             'data' => null
-        ]);
+        ], 404);
     }
 
     public function jawab_mahasiswa_api(Request $request, $id, $user_id)
@@ -656,7 +656,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Submit Jawaban Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $user = User::where('id', $user_id)->first();
@@ -666,7 +666,7 @@ class SoalController extends Controller
                 'success' => false,
                 'message' => 'Submit Jawaban Gagal, Id User Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $hasil = Hasil::where('user_id', $user_id)->where('matkul_id', $id)->get();
@@ -763,6 +763,6 @@ class SoalController extends Controller
             'success' => false,
             'message' => 'Submit Jawaban Gagal, Anda Sudah Mengerjakan Ujian',
             'data' => null
-        ]);
+        ], 404);
     }
 }

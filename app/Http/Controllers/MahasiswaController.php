@@ -224,7 +224,7 @@ class MahasiswaController extends Controller
                 'success' => false,
                 'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $dosen = Auth::user();
@@ -270,7 +270,7 @@ class MahasiswaController extends Controller
                 'success' => false,
                 'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         if (!$user) {
@@ -278,7 +278,7 @@ class MahasiswaController extends Controller
                 'success' => false,
                 'message' => 'Update Data Gagal, Id User Tidak Ditemukan',
                 'data' => null
-            ]);
+            ], 404);
         }
 
         $dosen = Auth::user();
