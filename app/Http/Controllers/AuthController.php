@@ -325,7 +325,7 @@ class AuthController extends Controller
 
             $matkul_user = Matkul::find($value['matkul_id']);
 
-            $data_lengkap_penguji[$key] = [
+            $data_lengkap_penguji[] = [
                 'user_id' => $value['user_id'],
                 'nama' => $data_user->nama,
                 'matkul_id' => $value['matkul_id'],

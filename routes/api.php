@@ -39,10 +39,10 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     Route::get('/dosen/soal/edit/{id}', [SoalController::class, 'edit_api']);
     Route::post('/dosen/soal/edit/{id}', [SoalController::class, 'update_api']);
     Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy_api']);
-    Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish_api']);
-    Route::get('/dosen/end/{id}', [SoalController::class, 'set_end_api']);
     Route::get('/soal/jawaban/{id}', [JawabanController::class, 'edit_api']);
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update_api']);
+    Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish_api']);
+    Route::get('/dosen/end/{id}', [SoalController::class, 'set_end_api']);
 
     Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen_api']);
     Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian_api']);
