@@ -31,7 +31,7 @@ class StartUjian
                     'success' => false,
                     'message' => 'Id Matkul Tidak Ditemukan',
                     'data' => null
-                ]);
+                ], 404);
             }
 
             if ($penguji->penguji_1->matkul_id == $matkul->id) {

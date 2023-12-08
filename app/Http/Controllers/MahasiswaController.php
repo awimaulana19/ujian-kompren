@@ -528,10 +528,10 @@ class MahasiswaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'dosen_penguji' => 'required',
-            'mata_kuliah_id' => 'required',
+            'mata_kuliah_id' => 'required|exists:matkuls,id',
             'mata_kuliah' => 'required',
             'nama_mahasiswa' => 'required',
-            'nim_mahasiswa' => 'required',
+            'nim_mahasiswa' => 'required|exists:users,username',
             'nilai_angka' => 'required',
         ]);
 

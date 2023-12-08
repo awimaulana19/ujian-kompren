@@ -365,7 +365,12 @@ class AuthController extends Controller
 
         $penguji = $data_lengkap_penguji;
 
-        $data['user'] = $user;
+        $data_mahasiswa['id'] = $user->id;
+        $data_mahasiswa['nama'] = $user->nama;
+        $data_mahasiswa['username'] = $user->username;
+        $data_mahasiswa['roles'] = $user->roles;
+
+        $data['mahasiswa'] = $data_mahasiswa;
         $data['penguji'] = $penguji;
 
         return response()->json([

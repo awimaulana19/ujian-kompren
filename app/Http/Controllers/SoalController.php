@@ -597,7 +597,15 @@ class SoalController extends Controller
             $sk = $data_nilai->nilai_penguji_3->sk;
         }
 
-        $data['mahasiswa'] = $mahasiswa;
+        $data_mahasiswa['id'] = $mahasiswa->id;
+        $data_mahasiswa['nama'] = $mahasiswa->nama;
+        $data_mahasiswa['username'] = $mahasiswa->username;
+        $data_mahasiswa['roles'] = $mahasiswa->roles;
+
+        $matkul->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+        $matkul->user->makeHidden(['username', 'penguji', 'nilai', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
+        $data['mahasiswa'] = $data_mahasiswa;
         $data['matkul'] = $matkul;
         $data['nilai_asli'] = $nilai_asli;
         $data['jumlah_benar'] = $jumlah_benar;
@@ -622,7 +630,13 @@ class SoalController extends Controller
             $hasil_acak = $this->acak($id);
             $soal = $hasil_acak['soal'];
 
-            $data['user'] = $user;
+            $data_mahasiswa['id'] = $user->id;
+            $data_mahasiswa['nama'] = $user->nama;
+            $data_mahasiswa['roles'] = $user->roles;
+
+            $matkul->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+            $data['mahasiswa'] = $data_mahasiswa;
             $data['matkul'] = $matkul;
             $data_soal = $soal->toArray();
             $data_soal = array_values($data_soal);
@@ -632,10 +646,14 @@ class SoalController extends Controller
                     $soal['gambar_soal'] = url('/') . '/storage/' . $soal['gambar_soal'];
                 }
 
+                unset($soal['tingkat'], $soal['matkul_id'], $soal['created_at'], $soal['updated_at']);
+
                 foreach ($soal['jawaban'] as &$jawaban) {
                     if ($jawaban['gambar_jawaban']) {
                         $jawaban['gambar_jawaban'] = url('/') . '/storage/' . $jawaban['gambar_jawaban'];
                     }
+
+                    unset($jawaban['is_correct'], $jawaban['soal_id'], $jawaban['created_at'], $jawaban['updated_at']);
                 }
             }
 
@@ -767,6 +785,8 @@ class SoalController extends Controller
 
             $user->nilai = $updatedJson;
             $user->update();
+
+            $user->makeHidden(['penguji', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
 
             return response()->json([
                 'success' => true,
