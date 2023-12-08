@@ -177,10 +177,10 @@ class DosenController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'dosen_penguji' => 'required',
-            'mata_kuliah_id' => 'required',
+            'mata_kuliah_id' => 'required|exists:matkuls,id',
             'mata_kuliah' => 'required',
             'nama_mahasiswa' => 'required',
-            'nim_mahasiswa' => 'required',
+            'nim_mahasiswa' => 'required|exists:users,username',
             'nilai_angka' => 'required',
             'tanggal_sk' => 'required',
         ]);
@@ -317,6 +317,8 @@ class DosenController extends Controller
 
         $user->nilai = $updatedJson;
         $user->update();
+
+        $user->makeHidden(['penguji', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
 
         return response()->json([
             'success' => true,

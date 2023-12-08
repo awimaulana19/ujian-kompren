@@ -240,8 +240,9 @@ class MahasiswaController extends Controller
                 if ($dosen->id == $value['user_id'] && $matkul_pengujian->id == $value['matkul_id']) {
                     $data_user = User::where('id', $item->id)->first();
 
+                    $data_user->makeHidden(['nilai', 'is_verification', 'created_at', 'updated_at']);
+
                     $data_user->penguji = json_decode($data_user->penguji);
-                    $data_user->nilai = json_decode($data_user->nilai);
 
                     $mahasiswa[] = $data_user;
                 }
@@ -254,7 +255,13 @@ class MahasiswaController extends Controller
             }
         }
 
-        $data['dosen'] = $dosen;
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_pengujian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
         $data['mahasiswa'] = $mahasiswa;
         $data['matkul'] = $matkul_pengujian;
 
@@ -305,6 +312,8 @@ class MahasiswaController extends Controller
         $user->penguji = $updatedJson;
         $user->update();
 
+        $user->makeHidden(['nilai', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
         return response()->json([
             'success' => true,
             'message' => 'Update Data Berhasil',
@@ -335,6 +344,8 @@ class MahasiswaController extends Controller
                 if ($dosen->id == $value['user_id'] && $matkul_penilaian->id == $value['matkul_id']) {
                     $data_user = User::where('id', $item->id)->first();
 
+                    $data_user->makeHidden(['is_verification', 'created_at', 'updated_at']);
+
                     $data_user->penguji = json_decode($data_user->penguji);
                     $data_user->nilai = json_decode($data_user->nilai);
 
@@ -343,7 +354,13 @@ class MahasiswaController extends Controller
             }
         }
 
-        $data['dosen'] = $dosen;
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_penilaian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
         $data['mahasiswa'] = $mahasiswa;
         $data['matkul'] = $matkul_penilaian;
 
@@ -417,8 +434,15 @@ class MahasiswaController extends Controller
             $sk = $data_nilai->nilai_penguji_3->sk;
         }
 
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_penilaian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+        $user->makeHidden(['sk_kompren', 'penguji', 'nilai', 'is_verification', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
         $data['matkul'] = $matkul_penilaian;
-        $data['dosen'] = $dosen;
         $data['mahasiswa'] = $user;
         $data['nilai_asli'] = $nilai_asli;
         $data['jumlah_benar'] = $jumlah_benar;
@@ -436,6 +460,16 @@ class MahasiswaController extends Controller
 
     public function remidial_api($id, $user_id)
     {
+        $matkul = Matkul::where('id', $id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
         $user = User::where('id', $user_id)->first();
 
         if (!$user) {
@@ -450,16 +484,6 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Update Data Gagal, Id User Bukan Mahasiswa',
-                'data' => null
-            ], 404);
-        }
-
-        $matkul = Matkul::where('id', $id)->first();
-
-        if (!$matkul) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
                 'data' => null
             ], 404);
         }
@@ -490,6 +514,8 @@ class MahasiswaController extends Controller
 
         $user->nilai = $updatedJson;
         $user->update();
+
+        $user->makeHidden(['penguji', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
 
         return response()->json([
             'success' => true,

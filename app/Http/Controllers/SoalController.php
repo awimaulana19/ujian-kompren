@@ -416,6 +416,8 @@ class SoalController extends Controller
             $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
         }
 
+        $soal->makeHidden(['created_at', 'updated_at']);
+
         return response()->json([
             'success' => true,
             'message' => 'Get Data Berhasil',
@@ -520,6 +522,8 @@ class SoalController extends Controller
         $finish->finish_time = $request->finish_time;
         $finish->update();
 
+        $finish->makeHidden(['created_at', 'updated_at']);
+
         return response()->json([
             'success' => true,
             'message' => 'Update Waktu Mulai Ujian Berhasil',
@@ -542,6 +546,8 @@ class SoalController extends Controller
         $finish->finish_date = null;
         $finish->finish_time = null;
         $finish->update();
+
+        $finish->makeHidden(['created_at', 'updated_at']);
 
         return response()->json([
             'success' => true,

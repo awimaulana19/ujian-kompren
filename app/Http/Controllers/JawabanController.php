@@ -171,8 +171,14 @@ class JawabanController extends Controller
             $e->gambar_jawaban = url('/') . '/storage/' . $e->gambar_jawaban;
         }
 
+        $soal->makeHidden(['created_at', 'updated_at']);
+        $a->makeHidden(['created_at', 'soal_id', 'updated_at']);
+        $b->makeHidden(['created_at', 'soal_id', 'updated_at']);
+        $c->makeHidden(['created_at', 'soal_id', 'updated_at']);
+        $d->makeHidden(['created_at', 'soal_id', 'updated_at']);
+        $e->makeHidden(['created_at', 'soal_id', 'updated_at']);
+
         $data['soal'] = $soal;
-        $data['matkul'] = $matkul;
         $data['a'] = $a;
         $data['b'] = $b;
         $data['c'] = $c;
