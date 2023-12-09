@@ -19,7 +19,11 @@ class OnlyDosen
     {
         if (request()->is('api*')) {
             if ($request->user()->roles != 'dosen') {
-                return redirect('/api/login-gagal');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token Tidak Valid, Anda Bukan Dosen',
+                    'data' => null
+                ], 404);
             }
 
             return $next($request);

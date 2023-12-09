@@ -19,7 +19,11 @@ class OnlyMahasiswa
     {
         if (request()->is('api*')) {
             if ($request->user()->roles != 'mahasiswa') {
-                return redirect('/api/login-gagal');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token Tidak Valid, Anda Bukan Mahasiswa',
+                    'data' => null
+                ], 404);
             }
 
             return $next($request);

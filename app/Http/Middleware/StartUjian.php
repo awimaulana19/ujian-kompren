@@ -51,7 +51,11 @@ class StartUjian
                 return $next($request);
             }
 
-            return redirect('/api/start-gagal');
+            return response()->json([
+                'success' => false,
+                'message' => 'Token Tidak Valid',
+                'data' => null
+            ], 404);
         } else {
             $id = $request->route('id');
 
