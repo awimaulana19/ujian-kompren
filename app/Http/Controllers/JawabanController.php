@@ -210,9 +210,8 @@ class JawabanController extends Controller
             if ($key == 0) {
                 $value->jawaban = $request->jawabanA;
                 if ($request->file('gambar_jawabanA')) {
-                    if ($request->gambarJawabanLamaA) {
-                        $desiredPart = Str::after($request->gambarJawabanLamaA, 'storage/');
-                        Storage::delete($desiredPart);
+                    if ($value->gambar_jawaban) {
+                        Storage::delete($value->gambar_jawaban);
                     }
                     $value->gambar_jawaban = $request->file('gambar_jawabanA')->store('gambar-jawaban');
                 }
@@ -225,9 +224,8 @@ class JawabanController extends Controller
             } elseif ($key == 1) {
                 $value->jawaban = $request->jawabanB;
                 if ($request->file('gambar_jawabanB')) {
-                    if ($request->gambarJawabanLamaB) {
-                        $desiredPart = Str::after($request->gambarJawabanLamaB, 'storage/');
-                        Storage::delete($desiredPart);
+                    if ($value->gambar_jawaban) {
+                        Storage::delete($value->gambar_jawaban);
                     }
                     $value->gambar_jawaban = $request->file('gambar_jawabanB')->store('gambar-jawaban');
                 }
@@ -240,9 +238,8 @@ class JawabanController extends Controller
             } elseif ($key == 2) {
                 $value->jawaban = $request->jawabanC;
                 if ($request->file('gambar_jawabanC')) {
-                    if ($request->gambarJawabanLamaC) {
-                        $desiredPart = Str::after($request->gambarJawabanLamaC, 'storage/');
-                        Storage::delete($desiredPart);
+                    if ($value->gambar_jawaban) {
+                        Storage::delete($value->gambar_jawaban);
                     }
                     $value->gambar_jawaban = $request->file('gambar_jawabanC')->store('gambar-jawaban');
                 }
@@ -255,9 +252,8 @@ class JawabanController extends Controller
             } elseif ($key == 3) {
                 $value->jawaban = $request->jawabanD;
                 if ($request->file('gambar_jawabanD')) {
-                    if ($request->gambarJawabanLamaD) {
-                        $desiredPart = Str::after($request->gambarJawabanLamaD, 'storage/');
-                        Storage::delete($desiredPart);
+                    if ($value->gambar_jawaban) {
+                        Storage::delete($value->gambar_jawaban);
                     }
                     $value->gambar_jawaban = $request->file('gambar_jawabanD')->store('gambar-jawaban');
                 }
@@ -270,9 +266,8 @@ class JawabanController extends Controller
             } elseif ($key == 4) {
                 $value->jawaban = $request->jawabanE;
                 if ($request->file('gambar_jawabanE')) {
-                    if ($request->gambarJawabanLamaE) {
-                        $desiredPart = Str::after($request->gambarJawabanLamaE, 'storage/');
-                        Storage::delete($desiredPart);
+                    if ($value->gambar_jawaban) {
+                        Storage::delete($value->gambar_jawaban);
                     }
                     $value->gambar_jawaban = $request->file('gambar_jawabanE')->store('gambar-jawaban');
                 }

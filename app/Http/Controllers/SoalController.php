@@ -454,8 +454,8 @@ class SoalController extends Controller
         $soal->soal = $request->soal;
         $soal->tingkat = $request->tingkat;
         if ($request->file('gambar_soal')) {
-            if ($request->gambarSoalLama) {
-                Storage::delete($request->gambarSoalLama);
+            if ($soal->gambar_soal) {
+                Storage::delete($soal->gambar_soal);
             }
             $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
         }
