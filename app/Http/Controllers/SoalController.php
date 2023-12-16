@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class SoalController extends Controller
 {
@@ -310,5 +311,494 @@ class SoalController extends Controller
         }
 
         return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Anda Sudah Mengerjakan Ujian');
+    }
+
+    public function start_gagal()
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda Belum Diizinkan Untuk Ujian',
+            'data' => null
+        ], 404);
+    }
+
+    public function soal_matkul_api($id)
+    {
+        $matkul = Matkul::where('id', $id)->with('soal')->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        foreach ($matkul->soal as $soal) {
+            if ($soal->gambar_soal) {
+                $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $matkul
+        ]);
+    }
+
+    public function store_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'matkul_id' => 'required',
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store Soal Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        $soal = new Soal();
+        $soal->matkul_id = $request->matkul_id;
+        $soal->soal = $request->soal;
+        $soal->tingkat = $request->tingkat;
+        if ($request->file('gambar_soal')) {
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->save();
+
+        $jawabanA = new Jawaban();
+        $jawabanA->soal_id = $soal->id;
+        $jawabanA->save();
+        $jawabanB = new Jawaban();
+        $jawabanB->soal_id = $soal->id;
+        $jawabanB->save();
+        $jawabanC = new Jawaban();
+        $jawabanC->soal_id = $soal->id;
+        $jawabanC->save();
+        $jawabanD = new Jawaban();
+        $jawabanD->soal_id = $soal->id;
+        $jawabanD->save();
+        $jawabanE = new Jawaban();
+        $jawabanE->soal_id = $soal->id;
+        $jawabanE->save();
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Store Soal Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function edit_api($id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
+        }
+
+        $soal->makeHidden(['created_at', 'updated_at']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function update_api(Request $request, $id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Soal Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        $soal->soal = $request->soal;
+        $soal->tingkat = $request->tingkat;
+        if ($request->file('gambar_soal')) {
+            if ($soal->gambar_soal) {
+                Storage::delete($soal->gambar_soal);
+            }
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->update();
+
+        if ($soal->gambar_soal) {
+            $soal->gambar_soal = url('/') . '/storage/' . $soal->gambar_soal;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Soal Berhasil',
+            'data' => $soal
+        ]);
+    }
+
+    public function destroy_api($id)
+    {
+        $soal = Soal::where('id', $id)->first();
+
+        if (!$soal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Delete Data Gagal, Id Soal Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $soal->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Delete Soal Berhasil',
+            'data' => null
+        ]);
+    }
+
+    public function set_finish_api(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'finish_date' => 'required|date',
+            'finish_time' => 'required|date_format:H:i',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Waktu Mulai Ujian Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        $finish = Matkul::where('id', $id)->first();
+
+        if (!$finish) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $finish->finish_date = $request->finish_date;
+        $finish->finish_time = $request->finish_time;
+        $finish->update();
+
+        $finish->makeHidden(['created_at', 'updated_at']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Waktu Mulai Ujian Berhasil',
+            'data' => $finish
+        ]);
+    }
+
+    public function set_end_api($id)
+    {
+        $finish = Matkul::where('id', $id)->first();
+
+        if (!$finish) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akhiri Waktu Mulai Ujian Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $finish->finish_date = null;
+        $finish->finish_time = null;
+        $finish->update();
+
+        $finish->makeHidden(['created_at', 'updated_at']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akhiri Waktu Mulai Ujian Berhasil',
+            'data' => $finish
+        ]);
+    }
+
+    public function ujian_mahasiswa_api($id)
+    {
+        $mahasiswa = Auth::user();
+        $matkul = Matkul::where('id', $id)->with('user')->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $data_penguji = json_decode($mahasiswa->penguji);
+        $data_nilai = json_decode($mahasiswa->nilai);
+
+        if ($data_penguji->penguji_1->user_id == $matkul->user_id && $data_penguji->penguji_1->matkul_id == $matkul->id) {
+            $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
+            $jumlah_benar = $data_nilai->nilai_penguji_1->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_1->jumlah_salah;
+            $remidial = $data_nilai->nilai_penguji_1->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_1->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_1->sk;
+        }
+        if ($data_penguji->penguji_2->user_id == $matkul->user_id && $data_penguji->penguji_2->matkul_id == $matkul->id) {
+            $nilai_asli = $data_nilai->nilai_penguji_2->nilai_ujian;
+            $jumlah_benar = $data_nilai->nilai_penguji_2->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_2->jumlah_salah;
+            $remidial = $data_nilai->nilai_penguji_2->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_2->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_2->sk;
+        }
+        if ($data_penguji->penguji_3->user_id == $matkul->user_id && $data_penguji->penguji_3->matkul_id == $matkul->id) {
+            $nilai_asli = $data_nilai->nilai_penguji_3->nilai_ujian;
+            $jumlah_benar = $data_nilai->nilai_penguji_3->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_3->jumlah_salah;
+            $remidial = $data_nilai->nilai_penguji_3->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_3->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_3->sk;
+        }
+
+        $data_mahasiswa['id'] = $mahasiswa->id;
+        $data_mahasiswa['nama'] = $mahasiswa->nama;
+        $data_mahasiswa['username'] = $mahasiswa->username;
+        $data_mahasiswa['roles'] = $mahasiswa->roles;
+
+        $matkul->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+        $matkul->user->makeHidden(['username', 'penguji', 'nilai', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
+        $data['mahasiswa'] = $data_mahasiswa;
+        $data['matkul'] = $matkul;
+        $data['nilai_asli'] = $nilai_asli;
+        $data['jumlah_benar'] = $jumlah_benar;
+        $data['jumlah_salah'] = $jumlah_salah;
+        $data['remidial'] = $remidial;
+        $data['nilai_remidial'] = $nilai_remidial;
+        $data['sk'] = $sk;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function soal_mahasiswa_api($id)
+    {
+        $user = Auth::user();
+        $nilai = Hasil::where('user_id', $user->id)->where('matkul_id', $id)->get();
+        if ($nilai->isEmpty()) {
+            $matkul = Matkul::where('id', $id)->first();
+            $hasil_acak = $this->acak($id);
+            $soal = $hasil_acak['soal'];
+
+            $data_mahasiswa['id'] = $user->id;
+            $data_mahasiswa['nama'] = $user->nama;
+            $data_mahasiswa['roles'] = $user->roles;
+
+            $matkul->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+            $data['mahasiswa'] = $data_mahasiswa;
+            $data['matkul'] = $matkul;
+            $data_soal = $soal->toArray();
+            $data_soal = array_values($data_soal);
+
+            foreach ($data_soal as &$soal) {
+                if ($soal['gambar_soal']) {
+                    $soal['gambar_soal'] = url('/') . '/storage/' . $soal['gambar_soal'];
+                }
+
+                unset($soal['tingkat'], $soal['matkul_id'], $soal['created_at'], $soal['updated_at']);
+
+                foreach ($soal['jawaban'] as &$jawaban) {
+                    if ($jawaban['gambar_jawaban']) {
+                        $jawaban['gambar_jawaban'] = url('/') . '/storage/' . $jawaban['gambar_jawaban'];
+                    }
+
+                    unset($jawaban['is_correct'], $jawaban['soal_id'], $jawaban['created_at'], $jawaban['updated_at']);
+                }
+            }
+
+            $data['soal'] = $data_soal;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Get Data Berhasil',
+                'data' => $data
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Get Data Gagal, Anda Sudah Mengerjakan Ujian',
+            'data' => null
+        ], 404);
+    }
+
+    public function jawab_mahasiswa_api(Request $request, $id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submit Jawaban Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('id', $request->user_id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submit Jawaban Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user->penguji) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submit Jawaban Gagal, Id User Bukan Mahasiswa',
+                'data' => null
+            ], 404);
+        }
+
+        $hasil = Hasil::where('user_id', $request->user_id)->where('matkul_id', $id)->get();
+        if ($hasil->isEmpty()) {
+            $soal = Soal::where('matkul_id', $matkul->id)->get();
+
+            foreach ($soal as $item) {
+                foreach ($item->jawaban as $pilih) {
+                    if ($request->{'soal' . $item->id} == $pilih->id) {
+                        if ($pilih->is_correct) {
+                            $hasil = new Hasil();
+                            $hasil->user_id = $user->id;
+                            $hasil->matkul_id = $matkul->id;
+                            $hasil->soal_id = $pilih->soal_id;
+                            $hasil->benar = true;
+
+                            $hasil->save();
+                        } else {
+                            $hasil = new Hasil();
+                            $hasil->user_id = $user->id;
+                            $hasil->matkul_id = $matkul->id;
+                            $hasil->soal_id = $pilih->soal_id;
+                            $hasil->benar = false;
+
+                            $hasil->save();
+                        }
+                    }
+                }
+            }
+
+            $hasil_acak = $this->acak($id);
+
+            $jumlah_soal = $hasil_acak['jumlah_soal'];
+            $jumlahBenar = 0;
+            $jumlahSalah = 0;
+
+            $hasil = Hasil::where('user_id', $user->id)->where('matkul_id', $matkul->id)->get();
+
+            foreach ($hasil as $item) {
+                if ($item->benar) {
+                    $jumlahBenar = $jumlahBenar + 1;
+                }
+                if (!$item->benar) {
+                    $jumlahSalah = $jumlahSalah + 1;
+                }
+            }
+
+            $nilai_ujian = ($jumlahBenar / $jumlah_soal) * 100;
+
+            $originalData = json_decode($user->nilai, true);
+
+            $penguji = json_decode($user->penguji);
+            if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+                $originalData['nilai_penguji_1']['jumlah_benar'] = $jumlahBenar;
+                $originalData['nilai_penguji_1']['jumlah_salah'] = $jumlahSalah;
+                if ($originalData['nilai_penguji_1']['remidial']) {
+                    $originalData['nilai_penguji_1']['nilai_remidial'] = $nilai_ujian;
+                } else {
+                    $originalData['nilai_penguji_1']['nilai_ujian'] = $nilai_ujian;
+                }
+            }
+            if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+                $originalData['nilai_penguji_2']['jumlah_benar'] = $jumlahBenar;
+                $originalData['nilai_penguji_2']['jumlah_salah'] = $jumlahSalah;
+                if ($originalData['nilai_penguji_2']['remidial']) {
+                    $originalData['nilai_penguji_2']['nilai_remidial'] = $nilai_ujian;
+                } else {
+                    $originalData['nilai_penguji_2']['nilai_ujian'] = $nilai_ujian;
+                }
+            }
+            if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+                $originalData['nilai_penguji_3']['jumlah_benar'] = $jumlahBenar;
+                $originalData['nilai_penguji_3']['jumlah_salah'] = $jumlahSalah;
+                if ($originalData['nilai_penguji_3']['remidial']) {
+                    $originalData['nilai_penguji_3']['nilai_remidial'] = $nilai_ujian;
+                } else {
+                    $originalData['nilai_penguji_3']['nilai_ujian'] = $nilai_ujian;
+                }
+            }
+
+            $updatedJson = json_encode($originalData);
+
+            $user->nilai = $updatedJson;
+            $user->update();
+
+            $user->makeHidden(['penguji', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Submit Jawaban Berhasil, Ujian Berhasil Di Kerjakan',
+                'data' => $user
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Submit Jawaban Gagal, Anda Sudah Mengerjakan Ujian',
+            'data' => null
+        ], 404);
     }
 }

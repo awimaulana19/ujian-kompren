@@ -8,6 +8,7 @@
             <h5 class="card-header">Soal</h5>
             <div class="card-body" style="margin-bottom: -30px;">
                 {!! $soal->soal !!}
+                <br>
                 @if ($soal->gambar_soal)
                     <img src="{{ asset('storage/' . $soal->gambar_soal) }}" width="50%">
                 @endif

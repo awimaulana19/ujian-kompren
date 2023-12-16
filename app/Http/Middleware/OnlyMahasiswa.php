@@ -17,9 +17,22 @@ class OnlyMahasiswa
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::user()->roles != 'mahasiswa'){
-            return redirect('/login');
+        if (request()->is('api*')) {
+            if ($request->user()->roles != 'mahasiswa') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token Tidak Valid, Anda Bukan Mahasiswa',
+                    'data' => null
+                ], 404);
+            }
+
+            return $next($request);
+        } else {
+            if (Auth::user()->roles != 'mahasiswa') {
+                return redirect('/login');
+            }
+
+            return $next($request);
         }
-        return $next($request);
     }
 }

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Hasil;
 use App\Models\Matkul;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class MahasiswaController extends Controller
 {
@@ -156,12 +157,15 @@ class MahasiswaController extends Controller
 
         if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
             $originalNilai['nilai_penguji_1']['remidial'] = true;
+            $originalNilai['nilai_penguji_1']['nilai_remidial'] = null;
         }
         if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
             $originalNilai['nilai_penguji_2']['remidial'] = true;
+            $originalNilai['nilai_penguji_2']['nilai_remidial'] = null;
         }
         if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
-            $originalNilai['nilai_penguji_2']['remidial'] = true;
+            $originalNilai['nilai_penguji_3']['remidial'] = true;
+            $originalNilai['nilai_penguji_3']['nilai_remidial'] = null;
         }
 
         $updatedJson = json_encode($originalNilai);
@@ -175,6 +179,370 @@ class MahasiswaController extends Controller
 
     public function pdf(Request $request)
     {
+        $user = Auth::user();
+        $matkul = Matkul::where('id', $request->mata_kuliah_id)->first();
+
+        $nilai = json_decode($user->nilai);
+        $penguji = json_decode($user->penguji);
+
+        if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_1->sk;
+            $keterangan = $nilai->nilai_penguji_1->keterangan;
+        }
+        if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_2->sk;
+            $keterangan = $nilai->nilai_penguji_2->keterangan;
+        }
+        if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_3->sk;
+            $keterangan = $nilai->nilai_penguji_3->keterangan;
+        }
+
+        if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
+            $nilai_huruf = "A";
+        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+            $nilai_huruf = "B";
+        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+            $nilai_huruf = "C";
+        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+            $nilai_huruf = "D";
+        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+            $nilai_huruf = "E";
+        } else {
+            $nilai_huruf = "Nilai tidak valid";
+        }
+
+        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
+        return $pdf->download("Surat Penilaian.pdf");
+    }
+
+    public function pengujian_dosen_api($id)
+    {
+        $matkul_pengujian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_pengujian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_pengujian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $data_user->makeHidden(['nilai', 'is_verification', 'created_at', 'updated_at']);
+
+                    $data_user->penguji = json_decode($data_user->penguji);
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        foreach ($mahasiswa as $item) {
+            if ($item->sk_kompren) {
+                $item->sk_kompren = url('/') . '/storage/skKompren/' . $item->sk_kompren;
+            }
+        }
+
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_pengujian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
+        $data['mahasiswa'] = $mahasiswa;
+        $data['matkul'] = $matkul_pengujian;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function dapat_ujian_api($id, $user_id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+        $user = User::where('id', $user_id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $dosen = Auth::user();
+
+        $originalData = json_decode($user->penguji, true);
+
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
+            $originalData['penguji_1']['dapat_ujian'] = !$originalData['penguji_1']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
+            $originalData['penguji_2']['dapat_ujian'] = !$originalData['penguji_2']['dapat_ujian'];
+        }
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
+            $originalData['penguji_3']['dapat_ujian'] = !$originalData['penguji_3']['dapat_ujian'];
+        }
+
+        $updatedJson = json_encode($originalData);
+
+        $user->penguji = $updatedJson;
+        $user->update();
+
+        $user->makeHidden(['nilai', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Update Data Berhasil',
+            'data' => $user
+        ]);
+    }
+
+    public function penilaian_dosen_api($id)
+    {
+        $dosen = Auth::user();
+        $mahasiswa = [];
+        $matkul_penilaian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_penilaian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_penilaian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $data_user->makeHidden(['is_verification', 'created_at', 'updated_at']);
+
+                    $data_user->penguji = json_decode($data_user->penguji);
+                    $data_user->nilai = json_decode($data_user->nilai);
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_penilaian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
+        $data['mahasiswa'] = $mahasiswa;
+        $data['matkul'] = $matkul_penilaian;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function nilai_mahasiswa_api($id, $user_id)
+    {
+        $dosen = Auth::user();
+
+        $matkul_penilaian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_penilaian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('id', $user_id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user->penguji) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id User Bukan Mahasiswa',
+                'data' => null
+            ], 404);
+        }
+
+        $user->penguji = json_decode($user->penguji);
+        $user->nilai = json_decode($user->nilai);
+
+        $data_penguji = $user->penguji;
+        $data_nilai = $user->nilai;
+
+        if ($data_penguji->penguji_1->user_id == $dosen->id && $data_penguji->penguji_1->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_1->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_1->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_1->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_1->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_1->sk;
+        }
+        if ($data_penguji->penguji_2->user_id == $dosen->id && $data_penguji->penguji_2->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_2->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_2->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_2->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_2->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_2->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_2->sk;
+        }
+        if ($data_penguji->penguji_3->user_id == $dosen->id && $data_penguji->penguji_3->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_3->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_3->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_3->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_3->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_3->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_3->sk;
+        }
+
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $matkul_penilaian->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+        $user->makeHidden(['sk_kompren', 'penguji', 'nilai', 'is_verification', 'created_at', 'updated_at']);
+
+        $data['dosen'] = $data_dosen;
+        $data['matkul'] = $matkul_penilaian;
+        $data['mahasiswa'] = $user;
+        $data['nilai_asli'] = $nilai_asli;
+        $data['jumlah_benar'] = $jumlah_benar;
+        $data['jumlah_salah'] = $jumlah_salah;
+        $data['remidial'] = $remidial;
+        $data['nilai_remidial'] = $nilai_remidial;
+        $data['sk'] = $sk;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function remidial_api($id, $user_id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('id', $user_id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user->penguji) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update Data Gagal, Id User Bukan Mahasiswa',
+                'data' => null
+            ], 404);
+        }
+
+        $hasil = Hasil::where('user_id', $user_id)->where('matkul_id', $id)->get();
+
+        Hasil::destroy($hasil);
+
+        $dosen = Auth::user();
+
+        $originalData = json_decode($user->penguji, true);
+        $originalNilai = json_decode($user->nilai, true);
+
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
+            $originalNilai['nilai_penguji_1']['remidial'] = true;
+            $originalNilai['nilai_penguji_1']['nilai_remidial'] = null;
+        }
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
+            $originalNilai['nilai_penguji_2']['remidial'] = true;
+            $originalNilai['nilai_penguji_2']['nilai_remidial'] = null;
+        }
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
+            $originalNilai['nilai_penguji_3']['remidial'] = true;
+            $originalNilai['nilai_penguji_3']['nilai_remidial'] = null;
+        }
+
+        $updatedJson = json_encode($originalNilai);
+
+        $user->nilai = $updatedJson;
+        $user->update();
+
+        $user->makeHidden(['penguji', 'sk_kompren',  'is_verification', 'created_at', 'updated_at']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil Update Data',
+            'data' => $user
+        ]);
+    }
+
+    public function pdf_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'dosen_penguji' => 'required',
+            'mata_kuliah_id' => 'required|exists:matkuls,id',
+            'mata_kuliah' => 'required',
+            'nama_mahasiswa' => 'required',
+            'nim_mahasiswa' => 'required|exists:users,username',
+            'nilai_angka' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cetak SK Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
         $user = Auth::user();
         $matkul = Matkul::where('id', $request->mata_kuliah_id)->first();
 

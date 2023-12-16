@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Soal;
 use App\Models\User;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -33,7 +36,7 @@ class AuthController extends Controller
 
         if ($request->has('sk_kompren')) {
             $file = $request->file('sk_kompren');
-            $nama_file = time() . "_" . $file->getClientOriginalName();
+            $nama_file = time() . "_SK_" . $request->username;
 
             // Simpan file ke direktori storage
             $file->storeAs('skKompren', $nama_file);
@@ -47,9 +50,9 @@ class AuthController extends Controller
             ]);
 
             $nilai = json_encode([
-                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
-                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
-                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => 0, 'remidial' => false, 'nilai_remidial' => 0, 'sk' => null],
+                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
+                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
+                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
             ]);
 
             $regis = new User([
@@ -61,8 +64,9 @@ class AuthController extends Controller
                 'nilai' => $nilai,
                 'sk_kompren' => $nama_file,
             ]);
+
+            $regis->save();
         }
-        $regis->save();
 
         Alert::success('Sukses', 'Akun anda sedang diverfikasi');
 
@@ -79,19 +83,33 @@ class AuthController extends Controller
 
     public function dashboard_dosen()
     {
-        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
-        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
-        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
-        return view('Dosen.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
+        $jumlah_matkul = Matkul::where('user_id', auth()->user()->id)->count();
+
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $jumlah_mahasiswa = count($mahasiswa);
+
+        return view('Dosen.Dashboard.dashboard', compact('jumlah_matkul', 'jumlah_mahasiswa'));
     }
 
     public function dashboard_mahasiswa()
     {
-        $soal_mudah = Soal::where('tingkat', '=', 'mudah')->count();
-        $soal_menengah = Soal::where('tingkat', '=', 'menengah')->count();
-        $soal_sulit = Soal::where('tingkat', '=', 'menengah')->count();
-
-        return view('Mahasiswa.Dashboard.dashboard', compact('soal_mudah', 'soal_menengah', 'soal_sulit'));
+        return view('Mahasiswa.Dashboard.dashboard');
     }
 
     public function login_action(Request $request)
@@ -122,5 +140,243 @@ class AuthController extends Controller
     {
         Auth::logout();
         return redirect('/');
+    }
+
+    public function register_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required',
+            'username' => 'required|unique:users',
+            'password' => 'required',
+            'sk_kompren' => 'required|file|mimes:pdf',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pendaftaran Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        if ($request->has('sk_kompren')) {
+            $file = $request->file('sk_kompren');
+            $nama_file = time() . "_SK_" . $request->username;
+
+            $file->storeAs('skKompren', $nama_file);
+
+            $hashedPassword = bcrypt($request->password);
+
+            $penguji = json_encode([
+                'penguji_1' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+                'penguji_2' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+                'penguji_3' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+            ]);
+
+            $nilai = json_encode([
+                'nilai_penguji_1' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
+                'nilai_penguji_2' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
+                'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
+            ]);
+
+            $regis = new User([
+                'nama' => $request->nama,
+                'username' => $request->username,
+                'password' => $hashedPassword,
+                'roles' => 'mahasiswa',
+                'penguji' => $penguji,
+                'nilai' => $nilai,
+                'sk_kompren' => $nama_file,
+            ]);
+
+            $regis->save();
+        }
+
+        $data['nama'] = $regis->nama;
+        $data['username'] = $regis->username;
+        $data['roles'] = $regis->roles;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pendaftaran Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function login_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login Gagal',
+                'data' => $validator->errors()
+            ], 404);
+        }
+
+        $user = User::where('username', $request->username)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau Password salah',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user->is_verification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda Belum Di Verifikasi Oleh Admin',
+                'data' => null
+            ], 404);
+        }
+
+        $data['token'] = $user->createToken('auth_token')->plainTextToken;
+        $data['nama'] = $user->nama;
+        $data['username'] = $user->username;
+        $data['roles'] = $user->roles;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function login_gagal()
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Token Tidak Valid',
+            'data' => null
+        ], 404);
+    }
+
+    public function logout_api(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout Berhasil',
+            'data' => null
+        ]);
+    }
+
+    public function get_matkul_api()
+    {
+        $data = auth()->user()->matkul;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function dashboard_dosen_api()
+    {
+        $jumlah_matkul = Matkul::where('user_id', auth()->user()->id)->count();
+
+        $dosen = Auth::user();
+        $mahasiswa = [];
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        $jumlah_mahasiswa = count($mahasiswa);
+
+        $data['jumlah_matkul'] = $jumlah_matkul;
+        $data['jumlah_mahasiswa'] = $jumlah_mahasiswa;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
+
+    public function get_pengujian_api()
+    {
+        $user = Auth::user();
+
+        $penguji = json_decode($user->penguji, true);
+
+        $data_lengkap_penguji = [];
+
+        foreach ($penguji as $key => $value) {
+            $data_user = User::find($value['user_id']);
+
+            $matkul_user = Matkul::find($value['matkul_id']);
+
+            $data_lengkap_penguji[] = [
+                'user_id' => $value['user_id'],
+                'nama' => $data_user->nama,
+                'matkul_id' => $value['matkul_id'],
+                'matkul_nama' => $matkul_user->nama,
+            ];
+        }
+
+        $penguji = $data_lengkap_penguji;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $penguji
+        ]);
+    }
+
+    public function dashboard_mahasiswa_api()
+    {
+        $user = Auth::user();
+
+        $penguji = json_decode($user->penguji, true);
+
+        $data_lengkap_penguji = [];
+
+        foreach ($penguji as $key => $value) {
+            $data_user = User::find($value['user_id']);
+
+            $matkul_user = Matkul::find($value['matkul_id']);
+
+            $data_lengkap_penguji[$key] = [
+                'user_id' => $value['user_id'],
+                'nama' => $data_user->nama,
+                'matkul_id' => $value['matkul_id'],
+                'matkul_nama' => $matkul_user->nama,
+            ];
+        }
+
+        $penguji = $data_lengkap_penguji;
+
+        $data_mahasiswa['id'] = $user->id;
+        $data_mahasiswa['nama'] = $user->nama;
+        $data_mahasiswa['username'] = $user->username;
+        $data_mahasiswa['roles'] = $user->roles;
+
+        $data['mahasiswa'] = $data_mahasiswa;
+        $data['penguji'] = $penguji;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
     }
 }
