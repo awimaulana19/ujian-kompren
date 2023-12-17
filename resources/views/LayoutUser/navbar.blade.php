@@ -5,7 +5,7 @@
           <div class="logo">
               <a href="{{ url('/') }}" class="d-flex">
                 <img src="{{ asset('assets2/img/logo.png') }}" alt="">
-                  <p class="mb-0 ms-2 align-self-center" style="font-size: 14px">UJIAN KOMPREN<br>
+                  <p class="mb-0 ms-2 align-self-center" style="font-size: 14px">UJIAN KOMPREHENSIF<br>
                       <span>Jurusan Sistem Informasi</span>
                   </p>
               </a>
