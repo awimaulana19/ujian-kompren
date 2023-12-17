@@ -53,7 +53,7 @@ class StartUjian
 
             return response()->json([
                 'success' => false,
-                'message' => 'Token Tidak Valid',
+                'message' => 'Anda Belum Diizinkan Untuk Ujian',
                 'data' => null
             ], 404);
         } else {
