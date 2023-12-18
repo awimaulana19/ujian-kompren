@@ -634,7 +634,7 @@ class SoalController extends Controller
             $data_mahasiswa['nama'] = $user->nama;
             $data_mahasiswa['roles'] = $user->roles;
 
-            $matkul->makeHidden(['user_id', 'finish_date', 'finish_time', 'created_at', 'updated_at']);
+            $matkul->makeHidden(['user_id', 'created_at', 'updated_at']);
 
             $data['mahasiswa'] = $data_mahasiswa;
             $data['matkul'] = $matkul;
