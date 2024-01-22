@@ -36,7 +36,7 @@ class AuthController extends Controller
 
         if ($request->has('sk_kompren')) {
             $file = $request->file('sk_kompren');
-            $nama_file = time() . "_SK_" . $request->username;
+            $nama_file = time() . "_SK_" . $request->username . ".pdf";
 
             // Simpan file ke direktori storage
             $file->storeAs('skKompren', $nama_file);
