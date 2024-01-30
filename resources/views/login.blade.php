@@ -64,6 +64,11 @@
                         @if (session('pesan-danger'))
                             <p class="alert alert-danger">{{ session('pesan-danger') }}</p>
                         @endif
+                        @if ($errors->any())
+                            @foreach ($errors->all() as $err)
+                                <p class="alert alert-danger">{{ $err }}</p>
+                            @endforeach
+                        @endif
                         <!-- /Logo -->
                         <form action="{{ url('/login') }}" method="POST">
                             @csrf

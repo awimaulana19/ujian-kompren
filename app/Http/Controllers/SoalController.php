@@ -255,6 +255,9 @@ class SoalController extends Controller
             $hasil_acak = $this->acak($id);
 
             $jumlah_soal = $hasil_acak['jumlah_soal'];
+            if ($jumlah_soal == 0) {
+                return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Soal Tidak Ditemukan');
+            }
             $jumlahBenar = 0;
             $jumlahSalah = 0;
 
