@@ -228,18 +228,18 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if (!$user->is_verification) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akun Anda Belum Di Verifikasi Oleh Admin',
-                'data' => null
-            ], 404);
-        }
-
         $data['token'] = $user->createToken('auth_token')->plainTextToken;
         $data['nama'] = $user->nama;
         $data['username'] = $user->username;
         $data['roles'] = $user->roles;
+
+        if (!$user->is_verification) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Akun Anda Belum Di Verifikasi Oleh Admin',
+                'data' => $data
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -315,6 +315,14 @@ class AuthController extends Controller
     public function get_pengujian_api()
     {
         $user = Auth::user();
+
+        if (!$user->is_verification) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Akun Anda Belum Diverifikasi Oleh Admin',
+                'data' => $user
+            ]);
+        }
 
         $penguji = json_decode($user->penguji, true);
 
