@@ -316,14 +316,6 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->is_verification) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Akun Anda Belum Diverifikasi Oleh Admin',
-                'data' => $user
-            ]);
-        }
-
         $penguji = json_decode($user->penguji, true);
 
         $data_lengkap_penguji = [];

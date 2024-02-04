@@ -26,6 +26,14 @@ class OnlyMahasiswa
                 ], 404);
             }
 
+            if (!$request->user()->is_verification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'belum_verifikasi',
+                    'data' => $request->user()
+                ]);
+            }
+
             return $next($request);
         } else {
             if (Auth::user()->roles != 'mahasiswa') {
