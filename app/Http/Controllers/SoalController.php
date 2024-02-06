@@ -804,4 +804,93 @@ class SoalController extends Controller
             'data' => null
         ], 404);
     }
+
+    private function lcm_test($seed, $n)
+    {
+        $a = 16807; // multiplier
+        $c = 1;     // konstanta penambahan
+        $m = 2147483647; // modulus (2^31 - 1)
+
+        $result = [];
+        $x = $seed;
+
+        for ($i = 0; $i < $n; $i++) {
+            $x = ($a * $x + $c) % $m;
+            $result[] = $x;
+        }
+
+        return $result;
+    }
+
+    // Fungsi untuk mengacak soal dengan memakai rumus LCM
+    public function acak_test($id)
+    {
+        $user = User::where('username', '60900120002')->first();
+        $matkul = Matkul::where('id', $id)->first();
+
+        $data_penguji = json_decode($user->penguji);
+        $data_nilai = json_decode($user->nilai);
+
+        if ($data_penguji->penguji_1->user_id == $matkul->user_id && $data_penguji->penguji_1->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_1->remidial;
+        }
+        if ($data_penguji->penguji_2->user_id == $matkul->user_id && $data_penguji->penguji_2->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_2->remidial;
+        }
+        if ($data_penguji->penguji_3->user_id == $matkul->user_id && $data_penguji->penguji_3->matkul_id == $matkul->id) {
+            $remidial = $data_nilai->nilai_penguji_3->remidial;
+        }
+
+        if ($remidial) {
+            $soal = Soal::where('matkul_id', $id)
+                ->whereIn('tingkat', ['Menengah', 'Mudah'])
+                ->with('jawaban')
+                ->get();
+        } else {
+            $soal = Soal::where('matkul_id', $id)
+                ->whereIn('tingkat', ['Sulit', 'Menengah'])
+                ->with('jawaban')
+                ->get();
+        }
+
+        // Seed untuk generator (Anda dapat menggunakan nilai awal yang berbeda untuk mendapatkan hasil acak yang berbeda)
+        $seed = time();
+
+        // Hitung jumlah soal
+        $jumlahSoal = count($soal);
+
+        // Lakukan pengacakan untuk indeks soal
+        $soalIndices = $this->lcm_test($seed, $jumlahSoal);
+
+        // Urutkan soal berdasarkan hasil pengacakan
+        $soal = $soal->sortBy(function ($item, $key) use ($soalIndices) {
+            return $soalIndices[$key];
+        });
+
+        $soal = $soal->take(15);
+
+        $soal = $soal->toArray();
+
+        foreach ($soal as &$item) {
+            $keys = array_keys($item['jawaban']);
+            shuffle($keys);
+            $jawaban_teracak = [];
+            foreach ($keys as $key) {
+                $jawaban_teracak[$key] = $item['jawaban'][$key];
+            }
+            $item['jawaban'] = $jawaban_teracak;
+        }
+
+        return ['soal' => $soal, 'jumlah_soal' => count($soal)];
+    }
+
+    public function unit_test($id = 2)
+    {
+        $hasil_acak = $this->acak_test($id);
+        $soal = $hasil_acak['soal'];
+
+        echo "Soal: " . json_encode($soal, JSON_PRETTY_PRINT) . "\n";
+
+        return true;
+    }
 }

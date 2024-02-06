@@ -87,3 +87,5 @@ Route::group(['middleware' => ['auth', 'OnlyMahasiswa']], function () {
     Route::post('/mahasiswa/soal/{id}/{user_id}', [SoalController::class, 'jawab_mahasiswa'])->middleware('StartUjian');
     Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf']);
 });
+
+Route::get('/algoritma', [SoalController::class, 'unit_test']);
