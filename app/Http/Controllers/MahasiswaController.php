@@ -579,4 +579,136 @@ class MahasiswaController extends Controller
         $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
         return $pdf->download("Surat Penilaian.pdf");
     }
+
+    public function list_mahasiswa_api($id)
+    {
+        $dosen = Auth::user();
+        $mahasiswa = [];
+        $matkul_penilaian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_penilaian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('roles', 'mahasiswa')->get();
+
+        foreach ($user as $item) {
+            $penguji = json_decode($item->penguji, true);
+
+            foreach ($penguji as $key => $value) {
+                if ($dosen->id == $value['user_id'] && $matkul_penilaian->id == $value['matkul_id']) {
+                    $data_user = User::where('id', $item->id)->first();
+
+                    $data_user->makeHidden(['is_verification', 'created_at', 'updated_at', 'penguji', 'nilai', 'roles', 'sk_kompren']);
+
+                    $mahasiswa[] = $data_user;
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $mahasiswa
+        ]);
+    }
+
+    public function detail_mahasiswa_api($id, $user_id)
+    {
+        $dosen = Auth::user();
+
+        $matkul_penilaian = Matkul::where('id', $id)->first();
+
+        if (!$matkul_penilaian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = User::where('id', $user_id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id User Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        if (!$user->penguji) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id User Bukan Mahasiswa',
+                'data' => null
+            ], 404);
+        }
+
+        $user->penguji = json_decode($user->penguji);
+        $user->nilai = json_decode($user->nilai);
+
+        $data_penguji = $user->penguji;
+        $data_nilai = $user->nilai;
+
+        if ($data_penguji->penguji_1->user_id == $dosen->id && $data_penguji->penguji_1->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_1->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_1->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_1->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_1->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_1->sk;
+        }
+        if ($data_penguji->penguji_2->user_id == $dosen->id && $data_penguji->penguji_2->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_2->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_2->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_2->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_2->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_2->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_2->sk;
+        }
+        if ($data_penguji->penguji_3->user_id == $dosen->id && $data_penguji->penguji_3->matkul_id == $matkul_penilaian->id) {
+            $jumlah_benar = $data_nilai->nilai_penguji_3->jumlah_benar;
+            $jumlah_salah = $data_nilai->nilai_penguji_3->jumlah_salah;
+            $nilai_asli = $data_nilai->nilai_penguji_3->nilai_ujian;
+            $remidial = $data_nilai->nilai_penguji_3->remidial;
+            $nilai_remidial = $data_nilai->nilai_penguji_3->nilai_remidial;
+            $sk = $data_nilai->nilai_penguji_3->sk;
+        }
+
+        $user->makeHidden(['sk_kompren', 'penguji', 'nilai', 'is_verification', 'created_at', 'updated_at']);
+
+        if ($sk) {
+            $status = "SK Nilai Tersedia";
+            $nilai = $nilai_asli;
+        } elseif ($remidial) {
+            if ($nilai_remidial !== null) {
+                $status = "Telah Remidial";
+                $nilai = $nilai_remidial;
+            } else {
+                $status = "Belum Remidial";
+                $nilai = 0;
+            }
+        } elseif ($remidial) {
+            $status = "Selesai Ujian";
+            $nilai = $nilai_asli;
+        } else {
+            $status = "Belum Ujian";
+            $nilai = 0;
+        }
+
+        $data['mahasiswa'] = $user;
+        $data['status'] = $status;
+        $data['nilai'] = $nilai;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get Data Berhasil',
+            'data' => $data
+        ]);
+    }
 }

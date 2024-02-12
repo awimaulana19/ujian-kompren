@@ -302,6 +302,12 @@ class AuthController extends Controller
 
         $jumlah_mahasiswa = count($mahasiswa);
 
+        $data_dosen['id'] = $dosen->id;
+        $data_dosen['nama'] = $dosen->nama;
+        $data_dosen['username'] = $dosen->username;
+        $data_dosen['roles'] = $dosen->roles;
+
+        $data['dosen'] = $data_dosen;
         $data['jumlah_matkul'] = $jumlah_matkul;
         $data['jumlah_mahasiswa'] = $jumlah_mahasiswa;
 

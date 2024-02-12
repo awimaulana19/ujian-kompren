@@ -52,6 +52,9 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyDosen']], function () {
     Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial_api']);
     Route::post('/kirim-nilai/pdf', [DosenController::class, 'pdf_api']);
     Route::get('/dosen/batal-kirim/{id}/{user_id}', [DosenController::class, 'batal_kirim_api']);
+
+    Route::get('/dosen/list-mahasiswa/{id}', [MahasiswaController::class, 'list_mahasiswa_api']);
+    Route::get('/dosen/detail-mahasiswa/{id}/{user_id}', [MahasiswaController::class, 'detail_mahasiswa_api']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'OnlyMahasiswa']], function () {
