@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 
@@ -110,33 +111,37 @@ class DosenController extends Controller
 
         if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
             $nilai_huruf = "A";
-        }
-        else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
             $nilai_huruf = "B";
-        }
-        else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
             $nilai_huruf = "C";
-        }
-        else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
             $nilai_huruf = "D";
-        }
-        else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
             $nilai_huruf = "E";
-        }
-        else {
+        } else {
             $nilai_huruf = "Nilai tidak valid";
         }
-        
+
         $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
 
+        $email = $user->username.'@uin-alauddin.ac.id';
+        $subject = 'SK Penilaian Kompren';
+
+        Mail::send('email.pemberitahuan', [], function ($message) use ($email, $subject, $pdf) {
+            $message->to($email)
+                ->subject($subject)
+                ->attachData($pdf->output(), 'SK_Penilaian_Kompren.pdf');
+        });
+
         Alert::success('Success', 'Berhasil mengirim surat penilaian');
-        
+
         return $pdf->download("Surat Penilaian {$user->nama}.pdf");
     }
 
     public function batal_kirim($id, $user_id)
     {
-        $user = User::where('id',$user_id)->first();
+        $user = User::where('id', $user_id)->first();
         $matkul = Matkul::where('id', $id)->first();
         $originalData = json_decode($user->nilai, true);
 
@@ -192,7 +197,7 @@ class DosenController extends Controller
                 'data' => $validator->errors()
             ], 404);
         }
-        
+
         $user = User::where('username', $request->nim_mahasiswa)->first();
         $matkul = Matkul::where('id', $request->mata_kuliah_id)->first();
         $originalData = json_decode($user->nilai, true);
@@ -234,29 +239,24 @@ class DosenController extends Controller
 
         if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
             $nilai_huruf = "A";
-        }
-        else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
             $nilai_huruf = "B";
-        }
-        else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
             $nilai_huruf = "C";
-        }
-        else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
             $nilai_huruf = "D";
-        }
-        else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
             $nilai_huruf = "E";
-        }
-        else {
+        } else {
             $nilai_huruf = "Nilai tidak valid";
         }
-        
+
         $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
         $pdf->render();
-        
+
         return $pdf->stream("Surat Penilaian {$user->nama}.pdf");
     }
-    
+
     public function batal_kirim_api($id, $user_id)
     {
         $matkul = Matkul::where('id', $id)->first();
@@ -269,7 +269,7 @@ class DosenController extends Controller
             ], 404);
         }
 
-        $user = User::where('id',$user_id)->first();
+        $user = User::where('id', $user_id)->first();
 
         if (!$user) {
             return response()->json([

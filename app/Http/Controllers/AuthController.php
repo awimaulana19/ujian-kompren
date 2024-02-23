@@ -55,17 +55,32 @@ class AuthController extends Controller
                 'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
             ]);
 
-            $regis = new User([
-                'nama' => $request->nama,
-                'username' => $request->username,
-                'password' => $hashedPassword,
-                'roles' => $request->roles,
-                'penguji' => $penguji,
-                'nilai' => $nilai,
-                'sk_kompren' => $nama_file,
-            ]);
+            $user = User::where('username', $request->username)->first();
 
-            $regis->save();
+            if ($user) {
+                $user->nama = $request->nama;
+                $user->password = $hashedPassword;
+                $user->roles = $request->roles;
+                $user->penguji = $penguji;
+                $user->nilai = $nilai;
+                $user->sk_kompren = $nama_file;
+                $user->is_verification = false;
+                $user->tolak = null;
+
+                $user->update();
+            } else {
+                $regis = new User([
+                    'nama' => $request->nama,
+                    'username' => $request->username,
+                    'password' => $hashedPassword,
+                    'roles' => $request->roles,
+                    'penguji' => $penguji,
+                    'nilai' => $nilai,
+                    'sk_kompren' => $nama_file,
+                ]);
+
+                $regis->save();
+            }
         }
 
         Alert::success('Sukses', 'Akun anda sedang diverfikasi');
@@ -126,7 +141,12 @@ class AuthController extends Controller
             } else {
                 if (auth()->user()->roles == 'mahasiswa' && auth()->user()->is_verification == true) {
                     return redirect('/dashboard-mahasiswa');
+                } elseif (auth()->user()->roles == 'mahasiswa' && auth()->user()->tolak) {
+                    $pesan = auth()->user()->tolak;
+                    Auth::logout();
+                    return back()->with('pesan-danger', $pesan);
                 } else {
+                    Auth::logout();
                     return back()->with('pesan-danger', 'Akun anda belum di verifikasi oleh admin');
                 }
             }

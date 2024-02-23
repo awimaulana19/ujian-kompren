@@ -33,11 +33,34 @@
                      <div data-i18n="Analytics">Data Dosen</div>
                  </a>
              </li>
-             <li id="mahasiswa" class="menu-item">
+             {{-- <li id="mahasiswa" class="menu-item">
                  <a href="/admin/mahasiswa" class="menu-link">
                      <i class="menu-icon tf-icons bx bxs-user"></i>
                      <div data-i18n="Analytics">Data Mahasiswa</div>
                  </a>
+             </li> --}}
+             <li class="menu-item {{ request()->is('admin/mahasiswa*') ? 'active' : '' }}">
+                 <a href="javascript:void(0);" class="menu-link menu-toggle">
+                     <i class="menu-icon tf-icons bx bxs-user"></i>
+                     <div data-i18n="Analytics">Data Mahasiswa</div>
+                 </a>
+                 <ul class="menu-sub">
+                     <li class="menu-item {{ request()->is('admin/mahasiswa/belum*') ? 'active' : '' }}">
+                         <a href="/admin/mahasiswa/belum" class="menu-link">
+                             <div data-i18n="Belum">Belum Di Verifikasi</div>
+                         </a>
+                     </li>
+                     <li class="menu-item {{ request()->is('admin/mahasiswa/telah*') ? 'active' : '' }}">
+                         <a href="/admin/mahasiswa/telah" class="menu-link">
+                             <div data-i18n="Telah">Telah Di Verifikasi</div>
+                         </a>
+                     </li>
+                     <li class="menu-item {{ request()->is('admin/mahasiswa/tolak*') ? 'active' : '' }}">
+                         <a href="/admin/mahasiswa/tolak" class="menu-link">
+                             <div data-i18n="Tolak">Di Tolak</div>
+                         </a>
+                     </li>
+                 </ul>
              </li>
              <li class="menu-header small text-uppercase">
                  <span class="menu-header-text">Pengujian</span>

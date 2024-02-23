@@ -16,44 +16,76 @@ class MahasiswaController extends Controller
 {
     public function index()
     {
-        $user = User::where('roles', 'mahasiswa')->get();
+        $user = User::where('roles', 'mahasiswa')->where('is_verification', 0)->whereNull('tolak')->get();
+        $dosen = User::where('roles', 'dosen')->get();
+        return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
+    }
+
+    public function telah()
+    {
+        $user = User::where('roles', 'mahasiswa')->where('is_verification', 1)->get();
+        $dosen = User::where('roles', 'dosen')->get();
+        return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
+    }
+
+    public function tolak()
+    {
+        $user = User::where('roles', 'mahasiswa')->where('is_verification', 0)->whereNotNull('tolak')->get();
         $dosen = User::where('roles', 'dosen')->get();
         return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'is_verification' => 'required',
-            'penguji_1' => 'required',
-            'penguji_2' => 'required',
-            'penguji_3' => 'required',
-            'matkul_1' => 'required',
-            'matkul_2' => 'required',
-            'matkul_3' => 'required',
-        ]);
+        if ($request->is_verification == 0) {
+            $request->validate([
+                'is_verification' => 'required',
+                'tolak' => 'nullable',
+            ]);
 
-        $user = User::where('id', $id)->first();
-        $user->is_verification = $request->is_verification;
+            $user = User::where('id', $id)->first();
+            $user->is_verification = $request->is_verification;
+            $user->tolak = $request->tolak;
 
-        $originalData = json_decode($user->penguji, true);
+            $user->update();
 
-        $originalData['penguji_1']['user_id'] = $request->penguji_1;
-        $originalData['penguji_1']['matkul_id'] = $request->matkul_1;
+            if ($user->tolak) {
+                Alert::success('Success', 'Tolak akun berhasil');
+            }
+        } else {
+            $request->validate([
+                'is_verification' => 'required',
+                'penguji_1' => 'required',
+                'penguji_2' => 'required',
+                'penguji_3' => 'required',
+                'matkul_1' => 'required',
+                'matkul_2' => 'required',
+                'matkul_3' => 'required',
+            ]);
 
-        $originalData['penguji_2']['user_id'] = $request->penguji_2;
-        $originalData['penguji_2']['matkul_id'] = $request->matkul_2;
+            $user = User::where('id', $id)->first();
+            $user->is_verification = $request->is_verification;
 
-        $originalData['penguji_3']['user_id'] = $request->penguji_3;
-        $originalData['penguji_3']['matkul_id'] = $request->matkul_3;
+            $originalData = json_decode($user->penguji, true);
 
-        $updatedJson = json_encode($originalData);
+            $originalData['penguji_1']['user_id'] = $request->penguji_1;
+            $originalData['penguji_1']['matkul_id'] = $request->matkul_1;
 
-        $user->penguji = $updatedJson;
+            $originalData['penguji_2']['user_id'] = $request->penguji_2;
+            $originalData['penguji_2']['matkul_id'] = $request->matkul_2;
 
-        $user->update();
-        Alert::success('Success', 'Verifikasi akun berhasil');
-        return redirect('/admin/mahasiswa');
+            $originalData['penguji_3']['user_id'] = $request->penguji_3;
+            $originalData['penguji_3']['matkul_id'] = $request->matkul_3;
+
+            $updatedJson = json_encode($originalData);
+
+            $user->penguji = $updatedJson;
+
+            $user->update();
+            Alert::success('Success', 'Verifikasi akun berhasil');
+        }
+
+        return redirect()->back();
     }
 
 
@@ -68,7 +100,7 @@ class MahasiswaController extends Controller
 
         $user->delete();
         Alert::success('Success', 'Berhasil menghapus akun');
-        return redirect('/admin/mahasiswa');
+        return redirect()->back();
     }
 
     public function pengujian_dosen($id)

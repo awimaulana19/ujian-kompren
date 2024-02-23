@@ -17,7 +17,6 @@
                                 <th class="text-center">Nama</th>
                                 <th class="text-center">Username/Nim</th>
                                 <th class="text-center">Sk Kompren</th>
-                                <th class="text-center">Status Akun</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -33,12 +32,6 @@
                                             target="_blank">Lihat
                                             SK Kompren
                                         </a>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="text-danger" {{ $item->is_verification == 0 ? '' : 'hidden' }}>Belum
-                                            Aktif</span>
-                                        <span class="text-success" {{ $item->is_verification == 1 ? '' : 'hidden' }}>Aktif
-                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
@@ -74,15 +67,24 @@
                                                         <div class="mb-3">
                                                             <label for="is_verification" class="form-label">Status
                                                                 Akun</label>
-                                                            <select name="is_verification" id="is_verification"
-                                                                class="form-select">
-                                                                <option value="1"
-                                                                    {{ $item->is_verification == '1' ? 'selected' : '' }}>
-                                                                    Aktifkan</option>
-                                                                <option value="0"
+                                                            <select name="is_verification"
+                                                                id="is_verification{{ $item->id }}" class="form-select">
+                                                                <option value="0" data-tolak="false"
                                                                     {{ $item->is_verification == '0' ? 'selected' : '' }}>
-                                                                    Nonaktifkan</option>
+                                                                    Belum Verifikasi</option>
+                                                                <option value="1" data-tolak="false"
+                                                                    {{ $item->is_verification == '1' ? 'selected' : '' }}>
+                                                                    Verifikasi</option>
+                                                                <option class="tolak" value="0" data-tolak="true"
+                                                                    {{ $item->is_verification == '0' && $item->tolak ? 'selected' : '' }}>
+                                                                    Tolak</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="tolakTextareaContainer{{ $item->id }}"
+                                                            style="display: none;" class="mb-3">
+                                                            <label for="tolak" class="form-label">Alasan
+                                                                Penolakan</label>
+                                                            <textarea id="tolak{{ $item->id }}" required name="tolak" class="form-control" rows="3"></textarea>
                                                         </div>
                                                         <div class="mb-3">
                                                             @php
@@ -116,7 +118,8 @@
                                                                 onchange="updateMatkul2{{ $item->id }}()">
                                                                 <option value="">Pilih Dosen</option>
                                                                 @foreach ($dosen as $row)
-                                                                    <option value="{{ $row->id }}" {{ $row->id == $penguji->penguji_2->user_id ? 'selected' : '' }}>
+                                                                    <option value="{{ $row->id }}"
+                                                                        {{ $row->id == $penguji->penguji_2->user_id ? 'selected' : '' }}>
                                                                         {{ $row->nama }}</option>
                                                                 @endforeach
                                                             </select>
@@ -135,7 +138,8 @@
                                                                 onchange="updateMatkul3{{ $item->id }}()">
                                                                 <option value="">Pilih Dosen</option>
                                                                 @foreach ($dosen as $row)
-                                                                    <option value="{{ $row->id }}" {{ $row->id == $penguji->penguji_3->user_id ? 'selected' : '' }}>
+                                                                    <option value="{{ $row->id }}"
+                                                                        {{ $row->id == $penguji->penguji_3->user_id ? 'selected' : '' }}>
                                                                         {{ $row->nama }}</option>
                                                                 @endforeach
                                                             </select>
@@ -158,6 +162,42 @@
                                         </div>
                                     </div>
                                 </tr>
+
+                                <script>
+                                    var isVerificationSelect = document.getElementById('is_verification{{ $item->id }}');
+                                    var tolakTextareaContainer = document.getElementById('tolakTextareaContainer{{ $item->id }}');
+                                    var tolakTextarea = document.getElementById('tolak{{ $item->id }}');
+
+                                    // Mendapatkan nilai awal dari select
+                                    var selectedValue = isVerificationSelect.value;
+                                    var dataTolak = isVerificationSelect.options[isVerificationSelect.selectedIndex].getAttribute('data-tolak');
+
+                                    // Memeriksa apakah textarea harus ditampilkan pada nilai awal
+                                    if (selectedValue === '0' && dataTolak === 'true') {
+                                        tolakTextareaContainer.style.display = 'block';
+                                        tolakTextarea.value = '{{ $item->tolak }}';
+                                    } else {
+                                        tolakTextareaContainer.style.display = 'none';
+                                        tolakTextarea.setAttribute('disabled', 'disabled');
+                                        tolakTextarea.value = '';
+                                    }
+
+                                    document.getElementById('is_verification{{ $item->id }}').addEventListener('change', function() {
+                                        var selectedValue = this.value;
+                                        var dataTolak = this.options[this.selectedIndex].getAttribute('data-tolak');
+                                        var tolakTextareaContainer = document.getElementById('tolakTextareaContainer{{ $item->id }}');
+                                        var tolakTextarea = document.getElementById('tolak{{ $item->id }}');
+
+                                        if (selectedValue == '0' && dataTolak == 'true') {
+                                            tolakTextareaContainer.style.display = 'block';
+                                            tolakTextarea.removeAttribute('disabled');
+                                        } else {
+                                            tolakTextareaContainer.style.display = 'none';
+                                            tolakTextarea.setAttribute('disabled', 'disabled');
+                                            tolakTextarea.value = '';
+                                        }
+                                    });
+                                </script>
                             @endforeach
                         </tbody>
                     </table>
