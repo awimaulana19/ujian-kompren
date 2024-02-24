@@ -612,6 +612,87 @@ class MahasiswaController extends Controller
         return $pdf->download("Surat Penilaian.pdf");
     }
 
+    public function pdf_matkul_api($id)
+    {
+        $matkul = Matkul::where('id', $id)->first();
+
+        if (!$matkul) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Get Data Gagal, Id Matkul Tidak Ditemukan',
+                'data' => null
+            ], 404);
+        }
+
+        $user = Auth::user();
+
+        $nilai = json_decode($user->nilai);
+        $penguji = json_decode($user->penguji);
+
+        if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_1->sk;
+            if (!$tanggal_sk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Get Data Gagal, SK Anda Belum Ada',
+                    'data' => null
+                ], 404);
+            }
+            $keterangan = $nilai->nilai_penguji_1->keterangan;
+            $nilai_asli = $nilai->nilai_penguji_1->nilai_ujian;
+        }
+        if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_2->sk;
+            if (!$tanggal_sk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Get Data Gagal, SK Anda Belum Ada',
+                    'data' => null
+                ], 404);
+            }
+            $keterangan = $nilai->nilai_penguji_2->keterangan;
+            $nilai_asli = $nilai->nilai_penguji_2->nilai_ujian;
+        }
+        if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
+            $tanggal_sk = $nilai->nilai_penguji_3->sk;
+            if (!$tanggal_sk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Get Data Gagal, SK Anda Belum Ada',
+                    'data' => null
+                ], 404);
+            }
+            $keterangan = $nilai->nilai_penguji_3->keterangan;
+            $nilai_asli = $nilai->nilai_penguji_3->nilai_ujian;
+        }
+
+        $request = (object)[
+            'dosen_penguji' => $matkul->user->nama,
+            'mata_kuliah_id' => $matkul->id,
+            'mata_kuliah' => $matkul->nama,
+            'nama_mahasiswa' => $user->nama,
+            'nim_mahasiswa' => $user->username,
+            'nilai_angka' => $nilai_asli
+        ];
+
+        if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
+            $nilai_huruf = "A";
+        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+            $nilai_huruf = "B";
+        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+            $nilai_huruf = "C";
+        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+            $nilai_huruf = "D";
+        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+            $nilai_huruf = "E";
+        } else {
+            $nilai_huruf = "Nilai tidak valid";
+        }
+
+        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
+        return $pdf->download("Surat Penilaian.pdf");
+    }
+
     public function list_mahasiswa_api($id)
     {
         $dosen = Auth::user();

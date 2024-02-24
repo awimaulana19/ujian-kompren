@@ -764,6 +764,13 @@ class SoalController extends Controller
                 } else {
                     $originalData['nilai_penguji_1']['nilai_ujian'] = $nilai_ujian;
                 }
+
+                if ($nilai_ujian < 60) {
+                    $hasil = Hasil::where('user_id', $user->id)->where('matkul_id', $matkul->id)->get();
+                    Hasil::destroy($hasil);
+                    $originalData['nilai_penguji_1']['remidial'] = true;
+                    $originalData['nilai_penguji_1']['nilai_remidial'] = null;
+                }
             }
             if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
                 $originalData['nilai_penguji_2']['jumlah_benar'] = $jumlahBenar;
@@ -773,6 +780,13 @@ class SoalController extends Controller
                 } else {
                     $originalData['nilai_penguji_2']['nilai_ujian'] = $nilai_ujian;
                 }
+
+                if ($nilai_ujian < 60) {
+                    $hasil = Hasil::where('user_id', $user->id)->where('matkul_id', $matkul->id)->get();
+                    Hasil::destroy($hasil);
+                    $originalData['nilai_penguji_2']['remidial'] = true;
+                    $originalData['nilai_penguji_2']['nilai_remidial'] = null;
+                }
             }
             if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
                 $originalData['nilai_penguji_3']['jumlah_benar'] = $jumlahBenar;
@@ -781,6 +795,13 @@ class SoalController extends Controller
                     $originalData['nilai_penguji_3']['nilai_remidial'] = $nilai_ujian;
                 } else {
                     $originalData['nilai_penguji_3']['nilai_ujian'] = $nilai_ujian;
+                }
+
+                if ($nilai_ujian < 60) {
+                    $hasil = Hasil::where('user_id', $user->id)->where('matkul_id', $matkul->id)->get();
+                    Hasil::destroy($hasil);
+                    $originalData['nilai_penguji_3']['remidial'] = true;
+                    $originalData['nilai_penguji_3']['nilai_remidial'] = null;
                 }
             }
 

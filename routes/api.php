@@ -65,4 +65,5 @@ Route::group(['middleware' => ['auth:sanctum', 'OnlyMahasiswa']], function () {
     Route::get('/mahasiswa/soal/{id}', [SoalController::class, 'soal_mahasiswa_api'])->middleware('StartUjian');
     Route::post('/mahasiswa/soal/{id}', [SoalController::class, 'jawab_mahasiswa_api'])->middleware('StartUjian');
     Route::post('/cetak/pdf', [MahasiswaController::class, 'pdf_api']);
+    Route::get('/cetak/pdf/{id}', [MahasiswaController::class, 'pdf_matkul_api']);
 });
