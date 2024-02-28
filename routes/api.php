@@ -20,6 +20,9 @@ use App\Http\Controllers\MahasiswaController;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    if ($request->user()->sk_kompren) {
+        $request->user()->sk_kompren = url('/') . '/storage/skKompren/' . $request->user()->sk_kompren;
+    }
     return $request->user();
 });
 
