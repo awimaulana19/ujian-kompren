@@ -806,7 +806,7 @@ class MahasiswaController extends Controller
                 $status = "Belum Remidial";
                 $nilai = 0;
             }
-        } elseif ($remidial) {
+        } elseif ($nilai_asli !== null) {
             $status = "Selesai Ujian";
             $nilai = $nilai_asli;
         } else {
