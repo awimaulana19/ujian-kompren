@@ -769,24 +769,18 @@ class MahasiswaController extends Controller
         $data_nilai = $user->nilai;
 
         if ($data_penguji->penguji_1->user_id == $dosen->id && $data_penguji->penguji_1->matkul_id == $matkul_penilaian->id) {
-            $jumlah_benar = $data_nilai->nilai_penguji_1->jumlah_benar;
-            $jumlah_salah = $data_nilai->nilai_penguji_1->jumlah_salah;
             $nilai_asli = $data_nilai->nilai_penguji_1->nilai_ujian;
             $remidial = $data_nilai->nilai_penguji_1->remidial;
             $nilai_remidial = $data_nilai->nilai_penguji_1->nilai_remidial;
             $sk = $data_nilai->nilai_penguji_1->sk;
         }
         if ($data_penguji->penguji_2->user_id == $dosen->id && $data_penguji->penguji_2->matkul_id == $matkul_penilaian->id) {
-            $jumlah_benar = $data_nilai->nilai_penguji_2->jumlah_benar;
-            $jumlah_salah = $data_nilai->nilai_penguji_2->jumlah_salah;
             $nilai_asli = $data_nilai->nilai_penguji_2->nilai_ujian;
             $remidial = $data_nilai->nilai_penguji_2->remidial;
             $nilai_remidial = $data_nilai->nilai_penguji_2->nilai_remidial;
             $sk = $data_nilai->nilai_penguji_2->sk;
         }
         if ($data_penguji->penguji_3->user_id == $dosen->id && $data_penguji->penguji_3->matkul_id == $matkul_penilaian->id) {
-            $jumlah_benar = $data_nilai->nilai_penguji_3->jumlah_benar;
-            $jumlah_salah = $data_nilai->nilai_penguji_3->jumlah_salah;
             $nilai_asli = $data_nilai->nilai_penguji_3->nilai_ujian;
             $remidial = $data_nilai->nilai_penguji_3->remidial;
             $nilai_remidial = $data_nilai->nilai_penguji_3->nilai_remidial;
