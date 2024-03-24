@@ -166,9 +166,10 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required',
-            'username' => 'required|unique:users',
+            'username' => 'required',
             'password' => 'required',
             'sk_kompren' => 'required|file|mimes:pdf',
+            'foto' => 'nullable|file|mimes:jpg,jpeg,png',
         ]);
 
         if ($validator->fails()) {
@@ -181,7 +182,7 @@ class AuthController extends Controller
 
         if ($request->has('sk_kompren')) {
             $file = $request->file('sk_kompren');
-            $nama_file = time() . "_SK_" . $request->username;
+            $nama_file = time() . "_SK_" . $request->username . ".pdf";
 
             $file->storeAs('skKompren', $nama_file);
 
@@ -199,22 +200,58 @@ class AuthController extends Controller
                 'nilai_penguji_3' => ['jumlah_benar' => 0, 'jumlah_salah' => 0, 'nilai_ujian' => null, 'remidial' => false, 'nilai_remidial' => null, 'sk' => null],
             ]);
 
-            $regis = new User([
-                'nama' => $request->nama,
-                'username' => $request->username,
-                'password' => $hashedPassword,
-                'roles' => 'mahasiswa',
-                'penguji' => $penguji,
-                'nilai' => $nilai,
-                'sk_kompren' => $nama_file,
-            ]);
+            $user = User::where('username', $request->username)->first();
 
-            $regis->save();
+            if ($user) {
+                $user->nama = $request->nama;
+                $user->password = $hashedPassword;
+                $user->penguji = $penguji;
+                $user->nilai = $nilai;
+                $user->sk_kompren = $nama_file;
+                $user->is_verification = false;
+                $user->tolak = null;
+
+                if ($request->has('foto')) {
+                    $foto = $request->file('foto');
+                    $nama_foto = time() . "_foto_" . $request->username . "." . $foto->getClientOriginalExtension();
+
+                    $foto->storeAs('foto', $nama_foto);
+
+                    $user->foto = $nama_foto;
+                }
+
+                $user->update();
+
+                $data['nama'] = $user->nama;
+                $data['username'] = $user->username;
+                $data['roles'] = $user->roles;
+            } else {
+                $nama_foto = null;
+                if ($request->has('foto')) {
+                    $foto = $request->file('foto');
+                    $nama_foto = time() . "_foto_" . $request->username . "." . $foto->getClientOriginalExtension();
+
+                    $foto->storeAs('foto', $nama_foto);
+                }
+
+                $regis = new User([
+                    'nama' => $request->nama,
+                    'username' => $request->username,
+                    'password' => $hashedPassword,
+                    'roles' => 'mahasiswa',
+                    'penguji' => $penguji,
+                    'nilai' => $nilai,
+                    'sk_kompren' => $nama_file,
+                    'foto' => $nama_foto,
+                ]);
+
+                $regis->save();
+
+                $data['nama'] = $regis->nama;
+                $data['username'] = $regis->username;
+                $data['roles'] = $regis->roles;
+            }
         }
-
-        $data['nama'] = $regis->nama;
-        $data['username'] = $regis->username;
-        $data['roles'] = $regis->roles;
 
         return response()->json([
             'success' => true,

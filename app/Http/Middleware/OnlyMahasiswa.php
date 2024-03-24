@@ -27,6 +27,14 @@ class OnlyMahasiswa
             }
 
             if (!$request->user()->is_verification) {
+                if ($request->user()->tolak) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'di_tolak',
+                        'data' => $request->user()
+                    ]);
+                }
+
                 return response()->json([
                     'success' => false,
                     'message' => 'belum_verifikasi',

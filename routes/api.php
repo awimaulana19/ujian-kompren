@@ -23,6 +23,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     if ($request->user()->sk_kompren) {
         $request->user()->sk_kompren = url('/') . '/storage/skKompren/' . $request->user()->sk_kompren;
     }
+    if ($request->user()->foto) {
+        $request->user()->foto = url('/') . '/storage/foto/' . $request->user()->foto;
+    } else {
+        $request->user()->foto = url('/') . '/assets/img/profile.png';
+    }
     return $request->user();
 });
 
