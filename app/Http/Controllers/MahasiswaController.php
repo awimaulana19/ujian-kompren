@@ -787,7 +787,7 @@ class MahasiswaController extends Controller
             $sk = $data_nilai->nilai_penguji_3->sk;
         }
 
-        $user->makeHidden(['sk_kompren', 'penguji', 'nilai', 'is_verification', 'created_at', 'updated_at']);
+        $user->makeHidden(['sk_kompren', 'tolak', 'penguji', 'nilai', 'is_verification', 'created_at', 'updated_at']);
 
         if ($sk) {
             $status = "SK Nilai Tersedia";
@@ -806,6 +806,12 @@ class MahasiswaController extends Controller
         } else {
             $status = "Belum Ujian";
             $nilai = 0;
+        }
+
+        if ($user->foto) {
+            $user->foto = url('/') . '/storage/foto/' . $user->foto;
+        } else {
+            $user->foto = url('/') . '/assets/img/profile.png';
         }
 
         $data['mahasiswa'] = $user;
