@@ -226,7 +226,7 @@ class AuthController extends Controller
                 $data['username'] = $user->username;
                 $data['roles'] = $user->roles;
             } else {
-                $nama_foto = '';
+                $nama_foto = null;
                 if ($request->has('foto')) {
                     $foto = $request->file('foto');
                     $nama_foto = time() . "_foto_" . $request->username . "." . $foto->getClientOriginalExtension();
