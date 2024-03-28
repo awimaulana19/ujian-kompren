@@ -226,7 +226,7 @@ class AuthController extends Controller
                 $data['username'] = $user->username;
                 $data['roles'] = $user->roles;
             } else {
-                $nama_foto = null;
+                $nama_foto = '';
                 if ($request->has('foto')) {
                     $foto = $request->file('foto');
                     $nama_foto = time() . "_foto_" . $request->username . "." . $foto->getClientOriginalExtension();
@@ -234,17 +234,15 @@ class AuthController extends Controller
                     $foto->storeAs('foto', $nama_foto);
                 }
 
-                $regis = new User([
-                    'nama' => $request->nama,
-                    'username' => $request->username,
-                    'password' => $hashedPassword,
-                    'roles' => 'mahasiswa',
-                    'penguji' => $penguji,
-                    'nilai' => $nilai,
-                    'sk_kompren' => $nama_file,
-                    'foto' => $nama_foto,
-                ]);
-
+                $regis = new User();
+                $regis->nama = $request->nama;
+                $regis->username = $request->username;
+                $regis->password = $hashedPassword;
+                $regis->roles = 'mahasiswa';
+                $regis->penguji = $penguji;
+                $regis->nilai = $nilai;
+                $regis->sk_kompren = $nama_file;
+                $regis->foto = $nama_foto;
                 $regis->save();
 
                 $data['nama'] = $regis->nama;
