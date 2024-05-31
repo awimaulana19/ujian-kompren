@@ -126,21 +126,30 @@ class MahasiswaController extends Controller
         return view('Dosen.Pengujian.index', compact('mahasiswa', 'matkul_pengujian'));
     }
 
-    public function dapat_ujian($id, $user_id)
+    public function atur_jadwal(Request $request)
     {
         $dosen = Auth::user();
-        $user = User::where('id', $user_id)->first();
+        $user = User::where('id', $request->user_id)->first();
 
         $originalData = json_decode($user->penguji, true);
 
-        if ($dosen->id == $originalData['penguji_1']['user_id'] && $id == $originalData['penguji_1']['matkul_id']) {
-            $originalData['penguji_1']['dapat_ujian'] = !$originalData['penguji_1']['dapat_ujian'];
+        if ($dosen->id == $originalData['penguji_1']['user_id'] && $request->matkul_id == $originalData['penguji_1']['matkul_id']) {
+            $originalData['penguji_1']['ruangan'] = $request->ruangan;
+            $originalData['penguji_1']['komputer'] = $request->komputer;
+            $originalData['penguji_1']['tanggal_ujian'] = $request->tanggal_ujian;
+            $originalData['penguji_1']['jam_ujian'] = $request->jam_ujian;
         }
-        if ($dosen->id == $originalData['penguji_2']['user_id']  && $id == $originalData['penguji_2']['matkul_id']) {
-            $originalData['penguji_2']['dapat_ujian'] = !$originalData['penguji_2']['dapat_ujian'];
+        if ($dosen->id == $originalData['penguji_2']['user_id']  && $request->matkul_id == $originalData['penguji_2']['matkul_id']) {
+            $originalData['penguji_2']['ruangan'] = $request->ruangan;
+            $originalData['penguji_2']['komputer'] = $request->komputer;
+            $originalData['penguji_2']['tanggal_ujian'] = $request->tanggal_ujian;
+            $originalData['penguji_2']['jam_ujian'] = $request->jam_ujian;
         }
-        if ($dosen->id == $originalData['penguji_3']['user_id']  && $id == $originalData['penguji_3']['matkul_id']) {
-            $originalData['penguji_3']['dapat_ujian'] = !$originalData['penguji_3']['dapat_ujian'];
+        if ($dosen->id == $originalData['penguji_3']['user_id']  && $request->matkul_id == $originalData['penguji_3']['matkul_id']) {
+            $originalData['penguji_3']['ruangan'] = $request->ruangan;
+            $originalData['penguji_3']['komputer'] = $request->komputer;
+            $originalData['penguji_3']['tanggal_ujian'] = $request->tanggal_ujian;
+            $originalData['penguji_3']['jam_ujian'] = $request->jam_ujian;
         }
 
         $updatedJson = json_encode($originalData);

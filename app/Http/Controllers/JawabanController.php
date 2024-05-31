@@ -14,109 +14,54 @@ class JawabanController extends Controller
 {
     public function edit($id)
     {
-        $soal = Soal::where('id', $id)->first();
+        $soal = Soal::findOrFail($id);
         $jawaban = Jawaban::where('soal_id', $id)->get();
-        $matkul = Matkul::where('id', $soal->matkul_id)->first();
+        $matkul = Matkul::findOrFail($soal->matkul_id);
 
-        foreach ($jawaban as $key => $value) {
-            if ($key == 0) {
-                $a = $value;
-            } elseif ($key == 1) {
-                $b = $value;
-            } elseif ($key == 2) {
-                $c = $value;
-            } elseif ($key == 3) {
-                $d = $value;
-            } elseif ($key == 4) {
-                $e = $value;
-            }
-        }
-
-        return view('Dosen.Matkul.jawaban', compact('soal', 'matkul', 'a', 'b', 'c', 'd', 'e', 'id'));
+        return view('Dosen.Matkul.jawaban', compact('soal', 'matkul', 'jawaban', 'id'));
     }
 
     public function update(Request $request, $id)
     {
-        $jawaban = Jawaban::where('soal_id', $id)->get();
-        $soal = Soal::where('id', $id)->first();
+        $validatedData = $request->validate([
+            'matkul_id' => 'required',
+            'soal' => 'required|string|max:255',
+            'tingkat' => 'required',
+            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+            'jawaban.*' => 'required|string|max:255', // Validasi untuk jawaban
+            'gambar_jawaban.*' => 'mimes:png,jpg,jpeg|max:10240', // Validasi untuk gambar jawaban
+            'benar' => 'required|string', // Validasi untuk jawaban benar
+        ]);
 
-        foreach ($jawaban as $key => $value) {
-            if ($key == 0) {
-                $value->jawaban = $request->jawabanA;
-                if ($request->file('gambar_jawabanA')) {
-                    if ($request->gambarJawabanLamaA) {
-                        Storage::delete($request->gambarJawabanLamaA);
-                    }
-                    $value->gambar_jawaban = $request->file('gambar_jawabanA')->store('gambar-jawaban');
-                }
-                if ($request->benar == "A") {
-                    $value->is_correct = true;
-                } else {
-                    $value->is_correct = false;
-                }
-                $value->update();
-            } elseif ($key == 1) {
-                $value->jawaban = $request->jawabanB;
-                if ($request->file('gambar_jawabanB')) {
-                    if ($request->gambarJawabanLamaB) {
-                        Storage::delete($request->gambarJawabanLamaB);
-                    }
-                    $value->gambar_jawaban = $request->file('gambar_jawabanB')->store('gambar-jawaban');
-                }
-                if ($request->benar == "B") {
-                    $value->is_correct = true;
-                } else {
-                    $value->is_correct = false;
-                }
-                $value->update();
-            } elseif ($key == 2) {
-                $value->jawaban = $request->jawabanC;
-                if ($request->file('gambar_jawabanC')) {
-                    if ($request->gambarJawabanLamaC) {
-                        Storage::delete($request->gambarJawabanLamaC);
-                    }
-                    $value->gambar_jawaban = $request->file('gambar_jawabanC')->store('gambar-jawaban');
-                }
-                if ($request->benar == "C") {
-                    $value->is_correct = true;
-                } else {
-                    $value->is_correct = false;
-                }
-                $value->update();
-            } elseif ($key == 3) {
-                $value->jawaban = $request->jawabanD;
-                if ($request->file('gambar_jawabanD')) {
-                    if ($request->gambarJawabanLamaD) {
-                        Storage::delete($request->gambarJawabanLamaD);
-                    }
-                    $value->gambar_jawaban = $request->file('gambar_jawabanD')->store('gambar-jawaban');
-                }
-                if ($request->benar == "D") {
-                    $value->is_correct = true;
-                } else {
-                    $value->is_correct = false;
-                }
-                $value->update();
-            } elseif ($key == 4) {
-                $value->jawaban = $request->jawabanE;
-                if ($request->file('gambar_jawabanE')) {
-                    if ($request->gambarJawabanLamaE) {
-                        Storage::delete($request->gambarJawabanLamaE);
-                    }
-                    $value->gambar_jawaban = $request->file('gambar_jawabanE')->store('gambar-jawaban');
-                }
-                if ($request->benar == "E") {
-                    $value->is_correct = true;
-                } else {
-                    $value->is_correct = false;
-                }
-                $value->update();
+        $soal = Soal::findOrFail($id);
+        $soal->matkul_id = $validatedData['matkul_id'];
+        $soal->soal = $validatedData['soal'];
+        $soal->tingkat = $validatedData['tingkat'];
+        if ($request->file('gambar_soal')) {
+            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
+        }
+        $soal->save();
+
+        // Hapus jawaban yang ada terlebih dahulu
+        $soal->jawaban()->delete();
+
+        // Simpan jawaban yang baru
+        foreach ($request->jawaban as $index => $jawabanText) {
+            $jawaban = new Jawaban();
+            $jawaban->soal_id = $soal->id;
+            $jawaban->jawaban = $jawabanText;
+            $jawaban->is_correct = ($request->benar == chr(65 + $index)) ? true : false;
+
+            if ($request->file('gambar_jawaban') && isset($request->file('gambar_jawaban')[$index])) {
+                $jawaban->gambar_jawaban = $request->file('gambar_jawaban')[$index]->store('gambar-jawaban');
             }
+            $jawaban->save();
         }
 
-        Alert::success('Success', 'Jawaban Di Update');
-        return redirect('/dosen/matkul/' . $soal->matkul_id)->with('success', 'Jawaban Di Update');
+        Alert::success('Success', 'Soal dan jawaban berhasil diperbarui');
+        return redirect('/dosen/matkul/' . $soal->matkul_id)->with('success', 'Soal dan jawaban berhasil diperbarui.');
     }
+
 
     public function edit_api($id)
     {

@@ -17,7 +17,7 @@
                                 <th class="text-center">Nama</th>
                                 <th class="text-center">Username/Nim</th>
                                 <th class="text-center">Sk Kompren</th>
-                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,32 +33,82 @@
                                             SK Kompren
                                         </a>
                                     </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#{{ 'jadwal' . $item->id }}">Atur Jadwal</button>
+                                    </td>
                                     @php
                                         $data_penguji = json_decode($item->penguji);
+                                        $pengujis = [
+                                            $data_penguji->penguji_1,
+                                            $data_penguji->penguji_2,
+                                            $data_penguji->penguji_3,
+                                        ];
+                                        $user_id = auth()->user()->id;
+                                        $matkul_id = $matkul_pengujian->id;
 
-                                        if ($data_penguji->penguji_1->user_id == auth()->user()->id && $data_penguji->penguji_1->matkul_id == $matkul_pengujian->id) {
-                                            $dapat_ujian = $data_penguji->penguji_1->dapat_ujian;
-                                        }
-                                        if ($data_penguji->penguji_2->user_id == auth()->user()->id && $data_penguji->penguji_2->matkul_id == $matkul_pengujian->id) {
-                                            $dapat_ujian = $data_penguji->penguji_2->dapat_ujian;
-                                        }
-                                        if ($data_penguji->penguji_3->user_id == auth()->user()->id && $data_penguji->penguji_3->matkul_id == $matkul_pengujian->id) {
-                                            $dapat_ujian = $data_penguji->penguji_3->dapat_ujian;
+                                        $komputer = '';
+                                        $ruangan = '';
+                                        $tanggal_ujian = '';
+                                        $jam_ujian = '';
+
+                                        foreach ($pengujis as $penguji) {
+                                            if ($penguji->user_id == $user_id && $penguji->matkul_id == $matkul_id) {
+                                                $komputer = $penguji->komputer ?? '';
+                                                $ruangan = $penguji->ruangan ?? '';
+                                                $tanggal_ujian = $penguji->tanggal_ujian ?? '';
+                                                $jam_ujian = $penguji->jam_ujian ?? '';
+                                                break;
+                                            }
                                         }
                                     @endphp
-                                    @if ($dapat_ujian)
-                                        <td class="text-center">
-                                            <a href="/dosen/dapat-ujian/{{ $matkul_pengujian->id }}/{{ $item->id }}" class="btn btn-sm btn-success">
-                                                Dapat Ujian 
-                                            </a>
-                                        </td>
-                                    @else
-                                        <td class="text-center">
-                                            <a href="/dosen/dapat-ujian/{{ $matkul_pengujian->id }}/{{ $item->id }}" class="btn btn-sm btn-danger">
-                                                Belum Dapat Ujian
-                                            </a>
-                                        </td>
-                                    @endif
+                                    <div class="modal fade" id="{{ 'jadwal' . $item->id }}" tabindex="-1"
+                                        aria-labelledby="{{ 'jadwal' . $item->id }}Label" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="{{ 'jadwal' . $item->id }}Label">
+                                                        Atur Jadwal</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <form action="/atur-jadwal" method="POST">
+                                                    <div class="modal-body">
+                                                        @csrf
+                                                        <input type="hidden" name="matkul_id"
+                                                            value="{{ $matkul_pengujian->id }}">
+                                                        <input type="hidden" name="user_id" value="{{ $item->id }}">
+                                                        <div class="mb-3">
+                                                            <label for="ruangan" class="form-label mb-2">Ruangan</label>
+                                                            <input type="text" class="form-control" required
+                                                                name="ruangan" value="{{ $ruangan }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="komputer" class="form-label mb-2">Komputer</label>
+                                                            <input type="text" class="form-control" required
+                                                                name="komputer" value="{{ $komputer }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="tanggal_ujian" class="form-label">Tanggal
+                                                                Ujian</label>
+                                                            <input type="date" id="tanggal_ujian" class="form-control"
+                                                                name="tanggal_ujian" required value="{{ $tanggal_ujian }}">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="jam_ujian" class="form-label">Jam Ujian</label>
+                                                            <input type="time" id="jam_ujian" class="form-control"
+                                                                name="jam_ujian" required value="{{ $jam_ujian }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Atur</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </tr>
                             @endforeach
                         </tbody>

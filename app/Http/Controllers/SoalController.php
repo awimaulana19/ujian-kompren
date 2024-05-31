@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Soal;
 use App\Models\User;
 use App\Models\Hasil;
@@ -29,6 +30,9 @@ class SoalController extends Controller
             'soal' => 'required|string|max:255',
             'tingkat' => 'required',
             'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
+            'jawaban.*' => 'required|string|max:255', // Validasi untuk jawaban
+            'gambar_jawaban.*' => 'mimes:png,jpg,jpeg|max:10240', // Validasi untuk gambar jawaban
+            'benar' => 'required|string', // Validasi untuk jawaban benar
         ]);
 
         $soal = new Soal();
@@ -40,47 +44,20 @@ class SoalController extends Controller
         }
         $soal->save();
 
-        $jawabanA = new Jawaban();
-        $jawabanA->soal_id = $soal->id;
-        $jawabanA->save();
-        $jawabanB = new Jawaban();
-        $jawabanB->soal_id = $soal->id;
-        $jawabanB->save();
-        $jawabanC = new Jawaban();
-        $jawabanC->soal_id = $soal->id;
-        $jawabanC->save();
-        $jawabanD = new Jawaban();
-        $jawabanD->soal_id = $soal->id;
-        $jawabanD->save();
-        $jawabanE = new Jawaban();
-        $jawabanE->soal_id = $soal->id;
-        $jawabanE->save();
+        foreach ($request->jawaban as $index => $jawabanText) {
+            $jawaban = new Jawaban();
+            $jawaban->soal_id = $soal->id;
+            $jawaban->jawaban = $jawabanText;
+            $jawaban->is_correct = ($request->benar == chr(65 + $index)) ? true : false;
+
+            if ($request->file('gambar_jawaban') && isset($request->file('gambar_jawaban')[$index])) {
+                $jawaban->gambar_jawaban = $request->file('gambar_jawaban')[$index]->store('gambar-jawaban');
+            }
+            $jawaban->save();
+        }
+
         Alert::success('Success', 'Soal ditambahkan');
         return redirect()->back()->with('success', 'Soal Telah Dibuat.');
-    }
-
-    public function update(Request $request, $id)
-    {
-        $soal = Soal::where('id', $id)->first();
-
-        $validatedData = $request->validate([
-            'soal' => 'required|string|max:255',
-            'tingkat' => 'required',
-            'gambar_soal' => 'mimes:png,jpg,jpeg|max:10240',
-        ]);
-
-        $soal->soal = $validatedData['soal'];
-        $soal->tingkat = $validatedData['tingkat'];
-        if ($request->file('gambar_soal')) {
-            if ($request->gambarSoalLama) {
-                Storage::delete($request->gambarSoalLama);
-            }
-            $soal->gambar_soal = $request->file('gambar_soal')->store('gambar-soal');
-        }
-        $soal->update();
-
-        Alert::success('Success', 'Soal Telah Diupdate');
-        return redirect()->back()->with('success', 'Soal Telah Diupdate');
     }
 
     public function destroy($id)
@@ -97,12 +74,14 @@ class SoalController extends Controller
         $validatedData = $request->validate([
             'finish_date' => 'required',
             'finish_time' => 'required',
+            'jumlah_soal' => 'required',
         ]);
 
         $finish = Matkul::where('id', $id)->first();
 
         $finish->finish_date = $validatedData['finish_date'];
         $finish->finish_time = $validatedData['finish_time'];
+        $finish->jumlah_soal = $validatedData['jumlah_soal'];
         $finish->update();
 
         Alert::success('Success', 'Waktu Pengerjaan Soal berhasil diatur');
@@ -173,7 +152,7 @@ class SoalController extends Controller
                 ->get();
         } else {
             $soal = Soal::where('matkul_id', $id)
-                ->whereIn('tingkat', ['Sulit', 'Menengah'])
+                ->whereIn('tingkat', ['Sulit', 'Menengah', 'Mudah'])
                 ->get();
         }
 
@@ -191,7 +170,7 @@ class SoalController extends Controller
             return $soalIndices[$key];
         });
 
-        $soal = $soal->take(15);
+        $soal = $soal->take($matkul->jumlah_soal);
 
         // Lakukan pengacakan untuk jawaban pada setiap soal
         foreach ($soal as $item) {
@@ -223,9 +202,13 @@ class SoalController extends Controller
     public function jawab_mahasiswa(Request $request, $id, $user_id)
     {
         $hasil = Hasil::where('user_id', $user_id)->where('matkul_id', $id)->get();
-        if ($hasil->isEmpty()) {
+        $matkul = Matkul::where('id', $id)->first();
+
+        $finish_date_time = Carbon::parse($matkul->finish_date . ' ' . $matkul->finish_time);
+        $current_time = Carbon::now();
+
+        if ($finish_date_time->greaterThanOrEqualTo($current_time) && $hasil->isEmpty()) {
             $user = User::where('id', $user_id)->first();
-            $matkul = Matkul::where('id', $id)->first();
             $soal = Soal::where('matkul_id', $matkul->id)->get();
 
             foreach ($soal as $item) {
@@ -313,7 +296,7 @@ class SoalController extends Controller
             return redirect('/mahasiswa/matkul/' . $id)->with('success', 'Ujian Berhasil Di Kerjakan');
         }
 
-        return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Anda Sudah Mengerjakan Ujian');
+        return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Ujian Belum Dimulai Lagi');
     }
 
     public function start_gagal()

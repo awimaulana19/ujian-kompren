@@ -65,7 +65,6 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
 
     Route::get('/dosen/matkul/{id}', [SoalController::class, 'soal_matkul']);
     Route::post('/dosen/soal', [SoalController::class, 'store']);
-    Route::post('/dosen/soal/edit/{id}', [SoalController::class, 'update']);
     Route::get('/dosen/soal/hapus/{id}', [SoalController::class, 'destroy']);
     Route::post('/dosen/finish/{id}', [SoalController::class, 'set_finish']);
     Route::get('/dosen/end/{id}', [SoalController::class, 'set_end']);
@@ -73,7 +72,7 @@ Route::group(['middleware' => ['auth', 'OnlyDosen']], function () {
     Route::post('/soal/jawaban/{id}', [JawabanController::class, 'update']);
 
     Route::get('/dosen/pengujian/{id}', [MahasiswaController::class, 'pengujian_dosen']);
-    Route::get('/dosen/dapat-ujian/{id}/{user_id}', [MahasiswaController::class, 'dapat_ujian']);
+    Route::post('/atur-jadwal', [MahasiswaController::class, 'atur_jadwal']);
 
     Route::get('/dosen/penilaian/{id}', [MahasiswaController::class, 'penilaian_dosen']);
     Route::get('/dosen/remidial/{id}/{user_id}', [MahasiswaController::class, 'remidial']);

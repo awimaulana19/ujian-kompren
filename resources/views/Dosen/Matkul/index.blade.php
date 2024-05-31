@@ -21,7 +21,7 @@
                     @if ($matkul->finish_time && $matkul->finish_date)
                         <button type="button" class="btn btn-primary ms-auto" data-bs-toggle="modal"
                             data-bs-target="#finish">
-                            Edit Waktu
+                            Atur Ujian
                         </button>
                     @else
                         <button type="button" class="btn btn-primary ms-auto" data-bs-toggle="modal"
@@ -36,6 +36,11 @@
                 </div>
                 @include('Dosen.Matkul.finish')
                 @include('Dosen.Matkul.tambah')
+                @if ($errors->any())
+                    @foreach ($errors->all() as $err)
+                        <p class="alert alert-danger mt-2">{{ $err }}</p>
+                    @endforeach
+                @endif
                 <div class="table-responsive text-nowrap mt-4">
                     <table class="table table-hover" id="table1">
                         <thead>
@@ -54,13 +59,9 @@
                                     <td class="text-center">{{ $item->tingkat }}</td>
                                     <td>
                                         <div class="d-flex">
-                                            <a class="btn btn-success me-3"
+                                            <a class="btn btn-primary me-3"
                                                 href="{{ url('/soal/jawaban/' . $item->id) }}"><i
-                                                    class="bx bx-book-alt me-1"></i> Jawaban</a>
-                                            <button class="btn btn-primary me-3" type="button" data-bs-toggle="modal"
-                                                data-bs-target="#{{ 'edit' . $item->id }}"><i
-                                                    class="bx bx-edit-alt me-1"></i> Edit Soal</button>
-                                            @include('Dosen.Matkul.edit')
+                                                    class="bx bx-edit-alt me-1"></i> Edit Soal</a>
                                             <a class="btn btn-danger" href="{{ url('/dosen/soal/hapus/' . $item->id) }}"><i
                                                     class="bx bx-trash me-1"></i> Hapus Soal</a>
                                         </div>

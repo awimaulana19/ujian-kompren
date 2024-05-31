@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Carbon\Carbon;
 use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,14 +69,26 @@ class StartUjian
                 return redirect()->back();
             }
 
-            if ($penguji->penguji_1->matkul_id == $matkul->id) {
-                $dapat_ujian = $penguji->penguji_1->dapat_ujian;
+            $dapat_ujian = false;
+            $current_time = Carbon::now();
+
+            if (isset($penguji->penguji_1->tanggal_ujian) && $penguji->penguji_1->matkul_id == $matkul->id) {
+                $tanggal_ujian = Carbon::parse($penguji->penguji_1->tanggal_ujian . ' ' . $penguji->penguji_1->jam_ujian);
+                if ($tanggal_ujian->lessThanOrEqualTo($current_time)) {
+                    $dapat_ujian = true;
+                }
             }
-            if ($penguji->penguji_2->matkul_id == $matkul->id) {
-                $dapat_ujian = $penguji->penguji_2->dapat_ujian;
+            if (isset($penguji->penguji_2->tanggal_ujian) && $penguji->penguji_2->matkul_id == $matkul->id) {
+                $tanggal_ujian = Carbon::parse($penguji->penguji_2->tanggal_ujian . ' ' . $penguji->penguji_2->jam_ujian);
+                if ($tanggal_ujian->lessThanOrEqualTo($current_time)) {
+                    $dapat_ujian = true;
+                }
             }
-            if ($penguji->penguji_3->matkul_id == $matkul->id) {
-                $dapat_ujian = $penguji->penguji_3->dapat_ujian;
+            if (isset($penguji->penguji_3->tanggal_ujian) && $penguji->penguji_3->matkul_id == $matkul->id) {
+                $tanggal_ujian = Carbon::parse($penguji->penguji_3->tanggal_ujian . ' ' . $penguji->penguji_3->jam_ujian);
+                if ($tanggal_ujian->lessThanOrEqualTo($current_time)) {
+                    $dapat_ujian = true;
+                }
             }
 
             $finish_date = $matkul->finish_date;
@@ -85,7 +98,7 @@ class StartUjian
                 return $next($request);
             }
 
-            return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Anda Belum Diizinkan Untuk Ujian');
+            return redirect('/mahasiswa/matkul/' . $id)->with('error', 'Belum Dapat Ujian');
         }
     }
 }
