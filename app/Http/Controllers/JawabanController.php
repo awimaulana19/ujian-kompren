@@ -42,10 +42,8 @@ class JawabanController extends Controller
         }
         $soal->save();
 
-        // Hapus jawaban yang ada terlebih dahulu
         $soal->jawaban()->delete();
 
-        // Simpan jawaban yang baru
         foreach ($request->jawaban as $index => $jawabanText) {
             $jawaban = new Jawaban();
             $jawaban->soal_id = $soal->id;
@@ -54,6 +52,8 @@ class JawabanController extends Controller
 
             if ($request->file('gambar_jawaban') && isset($request->file('gambar_jawaban')[$index])) {
                 $jawaban->gambar_jawaban = $request->file('gambar_jawaban')[$index]->store('gambar-jawaban');
+            } else {
+                $jawaban->gambar_jawaban = $request->gambar_jawaban_lama[$index];
             }
             $jawaban->save();
         }

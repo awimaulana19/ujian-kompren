@@ -53,6 +53,7 @@
                                 <input class="form-control" type="text" name="jawaban[]" value="{{ $jawab->jawaban }}">
                                 <div class="mt-3">
                                     <label class="form-label">Gambar</label>
+                                    <input type="hidden" name="gambar_jawaban_lama[]" value="{{ $jawab->gambar_jawaban }}">
                                     <input type="file" class="form-control" name="gambar_jawaban[]">
                                     @if ($jawab->gambar_jawaban)
                                         <img src="{{ asset('storage/' . $jawab->gambar_jawaban) }}" width="50%"
