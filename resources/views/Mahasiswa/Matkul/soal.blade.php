@@ -69,9 +69,7 @@
             if (distance < 0) {
                 clearInterval(x);
                 document.getElementById("countdown").innerHTML = "Tes Selesai";
-                setTimeout(function() {
-                    document.querySelector('form').submit();
-                }, distance + 1000);
+                document.querySelector('form').submit();
             }
         }, 1000);
 

@@ -35,6 +35,13 @@ class MahasiswaController extends Controller
         return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
     }
 
+    public function sudah_ujian()
+    {
+        $user = User::where('roles', 'mahasiswa')->where('is_verification', 1)->get();
+        $dosen = User::where('roles', 'dosen')->get();
+        return view('Admin.Mahasiswa.index', compact('user', 'dosen'));
+    }
+
     public function update(Request $request, $id)
     {
         if ($request->is_verification == 0) {

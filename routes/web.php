@@ -38,6 +38,7 @@ Route::group(['middleware' => ['auth', 'OnlyAdmin']], function () {
     Route::get('/admin/mahasiswa/belum', [MahasiswaController::class, 'index']);
     Route::get('/admin/mahasiswa/telah', [MahasiswaController::class, 'telah']);
     Route::get('/admin/mahasiswa/tolak', [MahasiswaController::class, 'tolak']);
+    Route::get('/admin/mahasiswa/sudah-ujian', [MahasiswaController::class, 'sudah_ujian']);
     Route::post('/admin/mahasiswa/update/{id}', [MahasiswaController::class, 'update']);
     Route::get('/admin/mahasiswa/delete/{id}', [MahasiswaController::class, 'destroy']);
 
