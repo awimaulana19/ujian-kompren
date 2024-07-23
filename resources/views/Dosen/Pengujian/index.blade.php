@@ -79,12 +79,14 @@
                                                             value="{{ $matkul_pengujian->id }}">
                                                         <input type="hidden" name="user_id" value="{{ $item->id }}">
                                                         <div class="mb-3">
-                                                            <label for="ruangan" class="form-label mb-2">Ruangan</label>
+                                                            <label for="ruangan" class="form-label mb-2">No.
+                                                                Ruangan</label>
                                                             <input type="text" class="form-control" required
                                                                 name="ruangan" value="{{ $ruangan }}">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="komputer" class="form-label mb-2">Komputer</label>
+                                                            <label for="komputer" class="form-label mb-2">No.
+                                                                Komputer</label>
                                                             <input type="text" class="form-control" required
                                                                 name="komputer" value="{{ $komputer }}">
                                                         </div>
@@ -110,6 +112,60 @@
                                         </div>
                                     </div>
                                 </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 mb-4">
+            <div class="card p-4">
+                <div class="d-flex">
+                    <h5>Jadwal Ujian</h5>
+                </div>
+                <div class="table-responsive text-nowrap mt-4">
+                    <table class="table table-hover" id="table1">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Tanggal Ujian</th>
+                                <th class="text-center">Jam Ujian</th>
+                                <th class="text-center">Mahasiswa Yang Ujian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($mahasiswa as $item)
+                                @php
+                                    $data_penguji = json_decode($item->penguji);
+                                    $pengujis = [
+                                        $data_penguji->penguji_1,
+                                        $data_penguji->penguji_2,
+                                        $data_penguji->penguji_3,
+                                    ];
+                                    $user_id = auth()->user()->id;
+                                    $matkul_id = $matkul_pengujian->id;
+
+                                    $komputer = '';
+                                    $ruangan = '';
+                                    $tanggal_ujian = '';
+                                    $jam_ujian = '';
+
+                                    foreach ($pengujis as $penguji) {
+                                        if ($penguji->user_id == $user_id && $penguji->matkul_id == $matkul_id) {
+                                            $komputer = $penguji->komputer ?? '';
+                                            $ruangan = $penguji->ruangan ?? '';
+                                            $tanggal_ujian = $penguji->tanggal_ujian ?? '';
+                                            $jam_ujian = $penguji->jam_ujian ?? '';
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                @if ($tanggal_ujian)
+                                    <tr>
+                                        <td class="text-center">{{ $tanggal_ujian }}</td>
+                                        <td class="text-center">{{ $jam_ujian }}</td>
+                                        <td class="text-center">{{ $item->nama }}</td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

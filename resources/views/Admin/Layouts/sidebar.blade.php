@@ -27,7 +27,7 @@
              <li class="menu-header small text-uppercase">
                  <span class="menu-header-text">Pengguna</span>
              </li>
-             <li id="dosen" class="menu-item">
+             <li id="dosen" class="menu-item {{ request()->is('admin/dosen*') ? 'active' : '' }}">
                  <a href="/admin/dosen" class="menu-link">
                      <i class="menu-icon tf-icons bx bxs-user-badge"></i>
                      <div data-i18n="Analytics">Data Dosen</div>
@@ -106,7 +106,7 @@
              <li class="menu-item {{ request()->is('dosen/pengujian*') ? 'active' : '' }}">
                  <a href="javascript:void(0);" class="menu-link menu-toggle">
                      <i class="menu-icon tf-icons bx bxs-book"></i>
-                     <div data-i18n="Layouts">Pengujian</div>
+                     <div data-i18n="Layouts">Hasil Pengujian</div>
                  </a>
 
                  <ul class="menu-sub">

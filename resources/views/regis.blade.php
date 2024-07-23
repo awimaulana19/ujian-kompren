@@ -98,6 +98,52 @@
                                         placeholder="Masukkan Password" aria-describedby="sk_kompren" accept=".pdf" />
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label for="penguji_1" class="form-label">Penguji 1</label>
+                                <select name="penguji_1" id="penguji_1" class="form-select"
+                                    onchange="updateMatkul1()">
+                                    <option value="">Pilih Dosen</option>
+                                    @foreach ($dosen as $row)
+                                        <option value="{{ $row->id }}">
+                                            {{ $row->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <select name="matkul_1" id="matkul_1" class="form-select mt-2">
+                                    <option value="">Pilih Matkul</option>
+                                </select>
+                                <input type="hidden" id="value_matkul_1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="penguji_2" class="form-label">Penguji 2</label>
+                                <select name="penguji_2" id="penguji_2" class="form-select"
+                                    onchange="updateMatkul2()">
+                                    <option value="">Pilih Dosen</option>
+                                    @foreach ($dosen as $row)
+                                        <option value="{{ $row->id }}">
+                                            {{ $row->nama }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="matkul_2" id="matkul_2" class="form-select mt-2">
+                                    <option value="">Pilih Matkul</option>
+                                </select>
+                                <input type="hidden" id="value_matkul_2">
+                            </div>
+                            <div class="mb-3">
+                                <label for="penguji_3" class="form-label">Penguji 3</label>
+                                <select name="penguji_3" id="penguji_3" class="form-select"
+                                    onchange="updateMatkul3()">
+                                    <option value="">Pilih Dosen</option>
+                                    @foreach ($dosen as $row)
+                                        <option value="{{ $row->id }}">
+                                            {{ $row->nama }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="matkul_3" id="matkul_3" class="form-select mt-2">
+                                    <option value="">Pilih Matkul</option>
+                                </select>
+                                <input type="hidden" id="value_matkul_3">
+                            </div>
                             <div class="mt-5">
                                 <button class="btn btn-primary d-grid w-100" type="submit">Sign Up</button>
                                 <div class="d-flex justify-content-end">
@@ -137,6 +183,105 @@
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await updateMatkul1();
+        });
+
+        async function updateMatkul1() {
+            const penguji = document.getElementById('penguji_1').value;
+            const value_matkul = document.getElementById('value_matkul_1').value;
+
+            document.getElementById('matkul_1').innerHTML =
+                '<option value="">Pilih Matkul</option>';
+            document.getElementById('matkul_1').disabled = true;
+
+            try {
+                const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                const data = await response.json();
+
+                data.forEach(matkul => {
+                    const option = document.createElement('option');
+                    if (value_matkul == matkul.id) {
+                        option.selected = true;
+                    }
+                    option.value = matkul.id;
+                    option.text = matkul.nama;
+                    document.getElementById('matkul_1').appendChild(option);
+                });
+
+                document.getElementById('matkul_1').disabled = false;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await updateMatkul2();
+        });
+
+        async function updateMatkul2() {
+            const penguji = document.getElementById('penguji_2').value;
+            const value_matkul = document.getElementById('value_matkul_2').value;
+
+            document.getElementById('matkul_2').innerHTML =
+                '<option value="">Pilih Matkul</option>';
+            document.getElementById('matkul_2').disabled = true;
+
+            try {
+                const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                const data = await response.json();
+
+                data.forEach(matkul => {
+                    const option = document.createElement('option');
+                    if (value_matkul == matkul.id) {
+                        option.selected = true;
+                    }
+                    option.value = matkul.id;
+                    option.text = matkul.nama;
+                    document.getElementById('matkul_2').appendChild(option);
+                });
+
+                document.getElementById('matkul_2').disabled = false;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await updateMatkul3();
+        });
+
+        async function updateMatkul3() {
+            const penguji = document.getElementById('penguji_3').value;
+            const value_matkul = document.getElementById('value_matkul_3').value;
+
+            document.getElementById('matkul_3').innerHTML =
+                '<option value="">Pilih Matkul</option>';
+            document.getElementById('matkul_3').disabled = true;
+
+            try {
+                const response = await fetch(`/matkul-list?penguji=${penguji}`);
+                const data = await response.json();
+
+                data.forEach(matkul => {
+                    const option = document.createElement('option');
+                    if (value_matkul == matkul.id) {
+                        option.selected = true;
+                    }
+                    option.value = matkul.id;
+                    option.text = matkul.nama;
+                    document.getElementById('matkul_3').appendChild(option);
+                });
+
+                document.getElementById('matkul_3').disabled = false;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
 
 </body>
 

@@ -7,7 +7,9 @@ use App\Models\Hasil;
 use App\Models\Matkul;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
@@ -236,31 +238,52 @@ class MahasiswaController extends Controller
         if ($matkul->id == $penguji->penguji_1->matkul_id && $matkul->user_id == $penguji->penguji_1->user_id) {
             $tanggal_sk = $nilai->nilai_penguji_1->sk;
             $keterangan = $nilai->nilai_penguji_1->keterangan;
+            $nilai_praktik = $nilai->nilai_penguji_1->nilai_praktik;
         }
         if ($matkul->id == $penguji->penguji_2->matkul_id && $matkul->user_id == $penguji->penguji_2->user_id) {
             $tanggal_sk = $nilai->nilai_penguji_2->sk;
             $keterangan = $nilai->nilai_penguji_2->keterangan;
+            $nilai_praktik = $nilai->nilai_penguji_2->nilai_praktik;
         }
         if ($matkul->id == $penguji->penguji_3->matkul_id && $matkul->user_id == $penguji->penguji_3->user_id) {
             $tanggal_sk = $nilai->nilai_penguji_3->sk;
             $keterangan = $nilai->nilai_penguji_3->keterangan;
+            $nilai_praktik = $nilai->nilai_penguji_3->nilai_praktik;
         }
 
-        if ($request->nilai_angka >= 90 && $request->nilai_angka <= 100) {
+        $rata_rata_nilai = ($request->nilai_angka + $nilai_praktik) / 2;
+
+        if ($rata_rata_nilai >= 90 && $rata_rata_nilai <= 100) {
             $nilai_huruf = "A";
-        } else if ($request->nilai_angka >= 80 && $request->nilai_angka <= 89) {
+        } else if ($rata_rata_nilai >= 80 && $rata_rata_nilai <= 89) {
             $nilai_huruf = "B";
-        } else if ($request->nilai_angka >= 70 && $request->nilai_angka <= 79) {
+        } else if ($rata_rata_nilai >= 70 && $rata_rata_nilai <= 79) {
             $nilai_huruf = "C";
-        } else if ($request->nilai_angka >= 60 && $request->nilai_angka <= 69) {
+        } else if ($rata_rata_nilai >= 60 && $rata_rata_nilai <= 69) {
             $nilai_huruf = "D";
-        } else if ($request->nilai_angka >= 0 && $request->nilai_angka <= 59) {
+        } else if ($rata_rata_nilai >= 0 && $rata_rata_nilai <= 59) {
             $nilai_huruf = "E";
         } else {
             $nilai_huruf = "Nilai tidak valid";
         }
 
-        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
+        $signaturePath = public_path('/signatures/' . $request->username_dosen_penguji . '.png');
+        $signatureBase64 = null;
+
+        if (File::exists($signaturePath)) {
+            $fileContents = File::get($signaturePath);
+            $signatureBase64 = base64_encode($fileContents);
+            $decoded = base64_decode($signatureBase64, true);
+            if ($decoded !== false && $decoded !== null && strlen($decoded) > 0) {
+                $signaturePath = '/signatures/' . $request->username_dosen_penguji . '.png';
+            } else {
+                $signaturePath = null;
+            }
+        } else {
+            $signaturePath = null;
+        }
+
+        $pdf = PDF::loadView('Mahasiswa.SkPenilaian.skPDF', compact('request', 'tanggal_sk', 'keterangan', 'nilai_huruf', 'rata_rata_nilai', 'signaturePath'))->setPaper('A4', 'potrait')->setOptions(['defaultFont' => 'sans-serif']);
         return $pdf->download("Surat Penilaian.pdf");
     }
 

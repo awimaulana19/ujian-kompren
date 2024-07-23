@@ -83,8 +83,30 @@
                                     <td class="text-center">{{ $item->nama }}</td>
                                     <td class="text-center"><span>{{ $item->username }}</span></td>
                                     <td class="text-center">
-                                        {{ implode(', ', $item->matkul->pluck('matakuliah.nama')->toArray()) }}
+                                        @php
+                                            $matkul_list = $item->matkul->pluck('id')->toArray();
+                                        @endphp
+                                        @foreach ($matkul_list as $matkul)
+                                            @php
+                                                $matkulItem = $item->matkul->where('id', $matkul)->first();
+                                            @endphp
+                                            <div class="btn-group dropend">
+                                                <a class="dropdown-toggle me-2" href="#" role="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    {{ $matkulItem->matakuliah->nama }}
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item"
+                                                            href="/admin/dosen/mahasiswa-diuji/{{ $item->id }}/{{ $matkulItem->id }}">Mahasiswa</a>
+                                                    </li>
+                                                    <li><a class="dropdown-item"
+                                                            href="/admin/dosen/bank-soal/{{ $matkulItem->id }}">Bank
+                                                            Soal</a></li>
+                                                </ul>
+                                            </div>
+                                        @endforeach
                                     </td>
+
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#exampleModal{{ $item->id }}">
@@ -131,9 +153,12 @@
                                                             <label for="matkul" class="form-label">Mata Kuliah</label>
                                                             <br>
                                                             @foreach ($matakuliah as $mata)
-                                                                <div class="form-check form-check-inline">
-                                                                    <input type="checkbox" class="form-check-input" name="matakuliah_id[]"
-                                                                        id="matakuliah_{{ $mata->id }}" value="{{ $mata->id }}" {{ in_array($mata->id, $item->matkul->pluck('matakuliah.id')->toArray()) ? 'checked' : '' }}>
+                                                                <div class="form-check">
+                                                                    <input type="checkbox" class="form-check-input"
+                                                                        name="matakuliah_id[]"
+                                                                        id="matakuliah_{{ $mata->id }}"
+                                                                        value="{{ $mata->id }}"
+                                                                        {{ in_array($mata->id, $item->matkul->pluck('matakuliah.id')->toArray()) ? 'checked' : '' }}>
                                                                     <label class="form-check-label"
                                                                         for="matakuliah_{{ $mata->id }}">{{ $mata->nama }}</label>
                                                                 </div>
@@ -142,8 +167,7 @@
                                                         <div class="d-flex justify-content-end gap-2">
                                                             <button type="button" class="btn btn-secondary"
                                                                 data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit"
-                                                                class="btn btn-primary">Update</button>
+                                                            <button type="submit" class="btn btn-primary">Update</button>
                                                         </div>
                                                     </form>
                                                 </div>

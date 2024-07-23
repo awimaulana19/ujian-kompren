@@ -25,13 +25,20 @@ class AuthController extends Controller
 
     public function halaman_regis()
     {
-        return view('regis');
+        $dosen = User::where('roles', 'dosen')->get();
+        return view('regis', compact('dosen'));
     }
 
     public function regis_action(Request $request)
     {
         $request->validate([
             'sk_kompren' => 'required|file|mimes:pdf',
+            'penguji_1' => 'required',
+            'penguji_2' => 'required',
+            'penguji_3' => 'required',
+            'matkul_1' => 'required',
+            'matkul_2' => 'required',
+            'matkul_3' => 'required',
         ]);
 
         if ($request->has('sk_kompren')) {
@@ -44,9 +51,9 @@ class AuthController extends Controller
             $hashedPassword = bcrypt($request->password);
 
             $penguji = json_encode([
-                'penguji_1' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
-                'penguji_2' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
-                'penguji_3' => ['user_id' => 0, 'matkul_id' => 0, 'dapat_ujian' => false],
+                'penguji_1' => ['user_id' => $request->penguji_1, 'matkul_id' => $request->matkul_1, 'dapat_ujian' => false],
+                'penguji_2' => ['user_id' => $request->penguji_2, 'matkul_id' => $request->matkul_2, 'dapat_ujian' => false],
+                'penguji_3' => ['user_id' => $request->penguji_3, 'matkul_id' => $request->matkul_3, 'dapat_ujian' => false],
             ]);
 
             $nilai = json_encode([
@@ -98,10 +105,9 @@ class AuthController extends Controller
 
     public function dashboard_dosen()
     {
-        $jumlah_matkul = Matkul::where('user_id', auth()->user()->id)->count();
-
         $dosen = Auth::user();
         $mahasiswa = [];
+        $telah_ujian = 0;
 
         $user = User::where('roles', 'mahasiswa')->get();
 
@@ -113,13 +119,37 @@ class AuthController extends Controller
                     $data_user = User::where('id', $item->id)->first();
 
                     $mahasiswa[] = $data_user;
+                    $data_penguji = json_decode($item->penguji);
+                    $data_nilai = json_decode($item->nilai);
+
+                    foreach ($dosen->matkul as $mat) {
+                        if ($data_penguji->penguji_1->user_id == $dosen->id && $data_penguji->penguji_1->matkul_id == $mat->id) {
+                            $sk = $data_nilai->nilai_penguji_1->sk;
+                            if ($sk) {
+                                $telah_ujian = $telah_ujian + 1;
+                            }
+                        }
+                        if ($data_penguji->penguji_2->user_id == $dosen->id && $data_penguji->penguji_2->matkul_id == $mat->id) {
+                            $sk = $data_nilai->nilai_penguji_2->sk;
+                            if ($sk) {
+                                $telah_ujian = $telah_ujian + 1;
+                            }
+                        }
+                        if ($data_penguji->penguji_3->user_id == $dosen->id && $data_penguji->penguji_3->matkul_id == $mat->id) {
+                            $sk = $data_nilai->nilai_penguji_3->sk;
+                            if ($sk) {
+                                $telah_ujian = $telah_ujian + 1;
+                            }
+                        }
+                    }
                 }
             }
         }
 
         $jumlah_mahasiswa = count($mahasiswa);
+        $jumlah_telah_ujian = $telah_ujian;
 
-        return view('Dosen.Dashboard.dashboard', compact('jumlah_matkul', 'jumlah_mahasiswa'));
+        return view('Dosen.Dashboard.dashboard', compact('jumlah_telah_ujian', 'jumlah_mahasiswa'));
     }
 
     public function dashboard_mahasiswa()

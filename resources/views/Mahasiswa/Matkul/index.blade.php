@@ -46,8 +46,8 @@
                 <div class="row">
                     <div class="d-flex flex-column justify-content-center align-items-center">
                         <h2 class="text-center">Jadwal & Tempat Ujian</h2>
-                        <h4 class="text-center">Ruangan : {{ $ruangan }}</h4>
-                        <h4 class="text-center">Komputer : {{ $komputer }}</h4>
+                        <h4 class="text-center">No. Ruangan : {{ $ruangan }}</h4>
+                        <h4 class="text-center">No. Komputer : {{ $komputer }}</h4>
                         <h4 class="text-center">Tanggal : {{ $tanggal_ujian }}</h4>
                         <h4 class="text-center">Jam : {{ $jam_ujian }}</h4>
                     </div>
@@ -61,6 +61,7 @@
                             <form action="/cetak/pdf" method="POST">
                                 @csrf
                                 <input type="hidden" name="dosen_penguji" value="{{ $matkul->user->nama }}">
+                                <input type="hidden" name="username_dosen_penguji" value="{{ $matkul->user->username }}">
                                 <input type="hidden" name="mata_kuliah_id" value="{{ $matkul->id }}">
                                 <input type="hidden" name="mata_kuliah" value="{{ $matkul->nama }}">
                                 <input type="hidden" name="nama_mahasiswa" value="{{ auth()->user()->nama }}">
@@ -74,7 +75,7 @@
                     <div class="row">
                         @if ($nilai_remidial !== null)
                             <div class="d-flex flex-column justify-content-center align-items-center" style="margin: 14% 0">
-                                <h2 class="text-center">Nilai Anda</h2>
+                                <h2 class="text-center">Nilai Remidial Anda</h2>
                                 <h3>{{ $nilai_remidial }}</h3>
                                 <br>
                                 <h3 class="text-center">Dengan Jumlah Benar Dan Salah</h3>
